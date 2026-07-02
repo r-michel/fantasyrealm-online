@@ -1,0 +1,95 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: fantasyrealm_php
+    volumes:
+      - ./app:/var/www
+    working_dir: /var/www
+    depends_on:
+      - db
+      - mongodb
+    networks:
+      - fantasyrealm
+
+  nginx:
+    image: nginx:latest
+    container_name: fantasyrealm_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    networks:
+      - fantasyrealm
+
+  db:
+    image: mysql:8.4
+    restart: always
+    environment:
+      MYSQL_DATABASE: fantasyrealm
+      MYSQL_USER: fantasyrealm_user
+      MYSQL_PASSWORD: fantasyrealm_pass
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - fantasyrealm
+    
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: fantasyrealm_phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: fantasyrealm_user
+      PMA_PASSWORD: fantasyrealm_pass
+    depends_on:
+      - db
+    networks:
+      - fantasyrealm
+
+  mongodb:
+    image: mongo:8
+    container_name: fantasyrealm_mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: fantasyrealm_logs
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - fantasyrealm
+
+  mongoexpress:
+    image: mongo-express:latest
+    container_name: fantasyrealm_mongo_express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: root
+      ME_CONFIG_MONGODB_SERVER: mongodb
+    depends_on:
+      - mongodb
+    networks:
+      - fantasyrealm
+
+volumes:
+  mysql_data:
+  mongo_data:
+
+networks:
+  fantasyrealm:

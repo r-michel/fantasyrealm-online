@@ -1,0 +1,72 @@
+<nav class="site-header">
+    <div class="container">
+
+        <div class="row">
+            <div class="col-12">
+
+                <div class="d-flex justify-content-between align-items-center py-3">
+
+                    <div class="d-flex align-items-center gap-4">
+
+                        <a class="site-brand" href="{{ path('app_home') }}">
+                            FantasyRealm
+                        </a>
+
+                        <div class="d-flex align-items-center gap-3">
+
+                            <a class="site-nav-link" href="{{ path('app_character_index') }}">
+                                <i class="bi bi-people-fill"></i>
+                                <span>Personnages</span>
+                            </a>
+
+                            <a class="site-nav-link" href="{{ path('app_contact') }}">
+                                <i class="bi bi-envelope-fill"></i>
+                                <span>Contact</span>
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        {% if app.user %}
+
+                            <a
+                                href="{{ path('app_account') }}"
+                                class="text-decoration-none text-dark d-flex align-items-center gap-2"
+                            >
+                                <i class="bi bi-person-fill"></i>
+                                <span>Mon espace</span>
+                            </a>
+
+                            <span class="fw-semibold">
+                                {{ app.user.username }}
+                            </span>
+
+                            <a class="btn btn-primary-custom" href="{{ path('app_login') }}">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Déconnexion</span>
+                            </a>
+
+                        {% else %}
+
+                            <a
+                                href="{{ path('app_login') }}"
+                                class="btn btn-primary d-flex align-items-center gap-2"
+                            >
+                                <i class="bi bi-box-arrow-in-right"></i>
+                                <span>Se connecter</span>
+                            </a>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</nav>

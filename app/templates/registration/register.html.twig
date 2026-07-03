@@ -1,23 +1,87 @@
-{% extends 'base.html.twig' %}
+{% extends 'auth/_auth_card.html.twig' %}
 
-{% block title %}Register{% endblock %}
+{% set active_tab = 'register' %}
 
-{% block body %}
-    {% for flash_error in app.flashes('verify_email_error') %}
-        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
-    {% endfor %}
+{% block title %}Créer un compte{% endblock %}
 
-    <h1>Register</h1>
+{% block auth_form %}
 
-    {{ form_errors(registrationForm) }}
+{{ form_start(registrationForm) }}
 
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.username) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
+    <div class="mb-4">
+        {{ form_label(registrationForm.username, 'Adresse e-mail', {
+            label_attr: { class: 'auth-label' }
         }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
 
-        <button type="submit" class="btn">Register</button>
-    {{ form_end(registrationForm) }}
+        <div class="auth-input-wrapper">
+            <i class="bi bi-envelope"></i>
+            {{ form_widget(registrationForm.email, {
+                attr: {
+                    class: 'auth-input',
+                    placeholder: 'votre@email.com'
+                }
+            }) }}
+        </div>
+
+        {{ form_errors(registrationForm.email) }}
+    </div>
+
+    <div class="mb-4">
+        {{ form_label(registrationForm.username, 'Pseudo', {
+            label_attr: { class: 'auth-label' }
+        }) }}
+
+        <div class="auth-input-wrapper">
+            <i class="bi bi-person"></i>
+            {{ form_widget(registrationForm.username, {
+                attr: {
+                    class: 'auth-input',
+                    placeholder: 'VotreHéros42'
+                }
+            }) }}
+        </div>
+
+        {{ form_errors(registrationForm.username) }}
+    </div>
+
+    <div class="mb-4">
+        {{ form_label(registrationForm.plainPassword, 'Mot de passe', {
+            label_attr: { class: 'auth-label' }
+        }) }}
+
+        <div class="auth-input-wrapper">
+            <i class="bi bi-lock"></i>
+            {{ form_widget(registrationForm.plainPassword, {
+                attr: {
+                    class: 'auth-input',
+                    placeholder: '••••••••'
+                }
+            }) }}
+        </div>
+
+        {{ form_errors(registrationForm.plainPassword) }}
+    </div>
+
+    <div class="mb-4 auth-checkbox">
+        {{ form_widget(registrationForm.agreeTerms, {
+            attr: { class: 'form-check-input' }
+        }) }}
+
+        <label class="form-check-label" for="{{ registrationForm.agreeTerms.vars.id }}">
+            J’accepte les
+            <a href="{{ path('app_terms') }}" target="_blank">
+                conditions générales d’utilisation
+            </a>
+        </label>
+
+        {{ form_errors(registrationForm.agreeTerms) }}
+    </div>
+
+    <button type="submit" class="btn auth-submit w-100">
+        <i class="bi bi-stars me-2"></i>
+        Créer mon compte
+    </button>
+
+{{ form_end(registrationForm) }}
+
 {% endblock %}

@@ -1,0 +1,267 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}FantasyRealm Online{% endblock %}
+
+{% block body %}
+<section class="hero-home d-flex align-items-center">
+    <div class="container text-center">
+
+        <div class="hero-badge mb-4">
+            <i class="bi bi-stars me-2"></i>
+            La forge de vos légendes
+        </div>
+
+        <p class="hero-kicker mb-3">
+            UN JEU CRÉÉ PAR <span>PIXELVERSE STUDIO</span>
+        </p>
+
+        <h1 class="hero-title mb-3">
+            FANTASY<span>REALM</span>
+        </h1>
+
+        <div class="hero-subtitle mb-4">
+            ONLINE
+        </div>
+
+        <p class="hero-description mb-3">
+            Créez, personnalisez et partagez votre héros pour le monde de
+            <strong>FantasyRealm Online.</strong>
+        </p>
+
+        <p class="hero-small mb-5">
+            De la forme des yeux à l’armure portée — chaque détail est entre vos mains.
+        </p>
+
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+
+            {% if app.user %}
+                <a href="{{ path('app_character_new') }}" class="btn btn-hero-primary">
+                    <i class="bi bi-person-plus me-2"></i>
+                    Commencer à créer
+                </a>
+            {% else %}
+                <a href="{{ path('app_register') }}" class="btn btn-hero-primary">
+                    <i class="bi bi-person-plus me-2"></i>
+                    Commencer à créer
+                </a>
+            {% endif %}
+
+            <a href="{{ path('app_character_index') }}" class="btn btn-hero-secondary">
+                <i class="bi bi-people me-2"></i>
+                Voir les personnages
+            </a>
+
+        </div>
+
+    </div>
+</section>
+
+<section class="home-features py-5">
+    <div class="container">
+
+        <div class="text-center mb-5">
+            <p class="section-kicker mb-3">
+                POURQUOI FANTASYREALM ONLINE ?
+            </p>
+
+            <h2 class="section-title">
+                Une forge à la hauteur de votre imagination
+            </h2>
+        </div>
+
+        <div class="row g-4">
+
+            {% set features = [
+                {
+                    icon: 'bi-eye-fill',
+                    title: 'Prévisualisation temps réel',
+                    text: 'Voyez votre personnage prendre vie à chaque modification de son apparence.'
+                },
+                {
+                    icon: 'bi-stars',
+                    title: 'Personnalisation complète',
+                    text: 'Visage, vêtements, armures, armes : tout est modulable selon votre vision.'
+                },
+                {
+                    icon: 'bi-globe',
+                    title: 'Partage communautaire',
+                    text: 'Exposez vos créations à la communauté FantasyRealm et recueillez des avis.'
+                },
+                {
+                    icon: 'bi-check-circle-fill',
+                    title: 'Validation par nos équipes',
+                    text: 'Chaque personnage est contrôlé pour garantir le respect des règles du jeu.'
+                },
+                {
+                    icon: 'bi-box-seam',
+                    title: 'Catalogue riche d’accessoires',
+                    text: 'Des dizaines d’équipements proposés et mis à jour régulièrement par notre équipe.'
+                },
+                {
+                    icon: 'bi-shield',
+                    title: 'Espace sécurisé et privé',
+                    text: 'Vos personnages vous appartiennent. Vous choisissez ce que vous partagez.'
+                }
+            ] %}
+
+            {% for feature in features %}
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="feature-card h-100">
+
+                        <div class="feature-icon mb-4">
+                            <i class="bi {{ feature.icon }}"></i>
+                        </div>
+
+                        <h3 class="feature-title">
+                            {{ feature.title }}
+                        </h3>
+
+                        <p class="feature-text">
+                            {{ feature.text }}
+                        </p>
+
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
+
+    </div>
+</section>
+
+<section class="game-presentation py-5">
+    <div class="container">
+
+        <div class="row align-items-center g-5">
+
+            <div class="col-lg-6">
+
+                <p class="game-kicker">
+                    LE JEU
+                </p>
+
+                <h2 class="game-title mb-3">
+                    FantasyRealm
+                    <span>Online</span>
+                </h2>
+
+                <p class="game-author mb-5">
+                    Développé par <strong>PixelVerse Studio</strong>
+                </p>
+
+                <p class="game-description">
+                    <strong>FantasyRealm Online</strong> est un MMORPG épique plongeant des millions de joueurs
+                    dans un univers fantastique où chaque choix façonne une légende.
+                    Royaumes à explorer, guildes à diriger, donjons à conquérir.
+                </p>
+
+                <p class="game-description mb-5">
+                    Votre personnage est votre identité dans ce monde.
+                    Cet outil vous offre les outils pour le concevoir avec soin —
+                    avant même de vous connecter au jeu.
+                </p>
+
+                <div class="row text-center text-lg-start">
+
+                    <div class="col-4">
+                        <div class="game-stat-value">
+                            2M+
+                        </div>
+
+                        <div class="game-stat-label">
+                            Joueurs actifs
+                        </div>
+                    </div>
+
+                    <div class="col-4">
+                        <div class="game-stat-value">
+                            500+
+                        </div>
+
+                        <div class="game-stat-label">
+                            Donjons
+                        </div>
+                    </div>
+
+                    <div class="col-4">
+                        <div class="game-stat-value">
+                            ∞
+                        </div>
+
+                        <div class="game-stat-label">
+                            Aventures
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-6">
+
+                <div class="game-media">
+
+                    <img
+                        src="/images/game-cover.jpg"
+                        alt="FantasyRealm Online"
+                        class="img-fluid game-cover"
+                    >
+
+                    <div class="server-status">
+
+                        <span class="server-dot"></span>
+
+                        Serveurs en ligne
+                        •
+                        <strong>2 147 483</strong>
+                        joueurs connectés
+
+                    </div>
+
+                    <div class="game-avatar">
+
+                        <img
+                            src="/images/game-avatar.jpg"
+                            alt="Chevalier"
+                            class="img-fluid rounded-4"
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<section class="home-cta">
+    <div class="container">
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+
+                <h2 class="cta-title">
+                    Votre légende commence ici
+                </h2>
+
+                <p class="cta-subtitle">
+                    Rejoignez des milliers de créateurs et donnez vie à votre héros dès aujourd'hui.
+                </p>
+
+                <a
+                    href="{{ path('app_register') }}"
+                    class="btn btn-hero-primary cta-button"
+                >
+                    <i class="bi bi-stars me-2"></i>
+                    Créer mon compte gratuitement
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

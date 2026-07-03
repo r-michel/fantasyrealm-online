@@ -1,38 +1,62 @@
-{% extends 'base.html.twig' %}
+{% extends 'auth/_auth_card.html.twig' %}
 
-{% block title %}Log in!{% endblock %}
+{% set active_tab = 'login' %}
 
-{% block body %}
-    <form method="post">
-        {% if error %}
-            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-        {% endif %}
+{% block title %}Connexion{% endblock %}
 
-        {% if app.user %}
-            <div class="mb-3">
-                You are logged in as {{ app.user.userIdentifier }}, <a href="{{ logout_path() }}">Logout</a>
-            </div>
-        {% endif %}
+{% block auth_form %}
 
-        <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-        <label for="username">Username</label>
-        <input type="text" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="username" required autofocus>
-        <label for="password">Password</label>
-        <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
-        <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+<form method="post">
 
-        {#
-            Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
-            See https://symfony.com/doc/current/security/remember_me.html
+    {% if error %}
+        <div class="alert alert-danger">
+            {{ error.messageKey|trans(error.messageData, 'security') }}
+        </div>
+    {% endif %}
 
-            <div class="checkbox mb-3">
-                <input type="checkbox" name="_remember_me" id="_remember_me">
-                <label for="_remember_me">Remember me</label>
-            </div>
-        #}
+    <div class="mb-4">
+        <label for="username" class="auth-label">Adresse e-mail</label>
 
-        <button class="btn btn-lg btn-primary" type="submit">
-            Sign in
-        </button>
-    </form>
+        <div class="auth-input-wrapper">
+            <i class="bi bi-envelope"></i>
+            <input
+                type="email"
+                value="{{ last_username }}"
+                name="_username"
+                id="username"
+                class="auth-input"
+                autocomplete="email"
+                placeholder="votre@email.com"
+                required
+                autofocus
+            >
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label for="password" class="auth-label">Mot de passe</label>
+
+        <div class="auth-input-wrapper">
+            <i class="bi bi-lock"></i>
+            <input
+                type="password"
+                name="_password"
+                id="password"
+                class="auth-input"
+                autocomplete="current-password"
+                placeholder="••••••••"
+                required
+            >
+        </div>
+    </div>
+
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+    <button class="btn auth-submit w-100" type="submit">
+        <i class="bi bi-crown me-2"></i>
+        Entrer dans le Royaume
+    </button>
+
+</form>
+
 {% endblock %}

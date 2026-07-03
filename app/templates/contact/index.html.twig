@@ -1,20 +1,85 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello ContactController!{% endblock %}
+{% block title %}Contact{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+<section class="contact-page py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+                <h1 class="contact-title">Contact</h1>
+                <p class="contact-subtitle">
+                    Une question, un signalement ? Notre équipe est à votre écoute.
+                </p>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/var/www/src/Controller/ContactController.php</code></li>
-        <li>Your template at <code>/var/www/templates/contact/index.html.twig</code></li>
-    </ul>
-</div>
+                <div class="contact-card mt-5">
+                    {{ form_start(contactForm) }}
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                {{ form_label(contactForm.email, 'E-mail', {
+                                    label_attr: { class: 'auth-label' }
+                                }) }}
+                                {{ form_widget(contactForm.email, {
+                                    attr: {
+                                        class: 'auth-input standalone',
+                                        placeholder: 'votre@email.com'
+                                    }
+                                }) }}
+                                {{ form_errors(contactForm.email) }}
+                            </div>
+
+                            <div class="col-md-6">
+                                {{ form_label(contactForm.username, 'Pseudo', {
+                                    label_attr: { class: 'auth-label' }
+                                }) }}
+                                {{ form_widget(contactForm.username, {
+                                    attr: {
+                                        class: 'auth-input standalone',
+                                        placeholder: 'Votre pseudo'
+                                    }
+                                }) }}
+                                {{ form_errors(contactForm.username) }}
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            {{ form_label(contactForm.subject, 'Objet de la demande', {
+                                label_attr: { class: 'auth-label' }
+                            }) }}
+                            {{ form_widget(contactForm.subject, {
+                                attr: {
+                                    class: 'auth-input standalone',
+                                    placeholder: 'Ex : Problème de connexion, signalement...'
+                                }
+                            }) }}
+                            {{ form_errors(contactForm.subject) }}
+                        </div>
+
+                        <div class="mt-4">
+                            {{ form_label(contactForm.message, 'Détail de la demande', {
+                                label_attr: { class: 'auth-label' }
+                            }) }}
+                            {{ form_widget(contactForm.message, {
+                                attr: {
+                                    class: 'auth-input standalone auth-textarea',
+                                    placeholder: 'Décrivez votre demande en détail...'
+                                }
+                            }) }}
+                            {{ form_errors(contactForm.message) }}
+                        </div>
+
+                        <button type="submit" class="btn auth-submit w-100 mt-4">
+                            <i class="bi bi-envelope me-2"></i>
+                            Envoyer le message
+                        </button>
+
+                    {{ form_end(contactForm) }}
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

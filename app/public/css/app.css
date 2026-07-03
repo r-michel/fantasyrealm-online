@@ -596,3 +596,49 @@ body {
     font-size: 0.9rem;
     color: var(--color-text-muted);
 }
+
+/* =========================
+   CONTACT
+========================= */
+
+.contact-page {
+    background: var(--color-bg);
+}
+
+.contact-title {
+    color: var(--color-text);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+}
+
+.contact-subtitle {
+    color: var(--color-text-muted);
+}
+
+.contact-card {
+    background: var(--color-bg-soft);
+    border: 1px solid var(--color-border);
+    border-radius: 1.25rem;
+    padding: 2rem;
+}
+
+.auth-input.standalone {
+    display: block;
+    width: 100%;
+    border: 1px solid var(--color-border);
+    border-radius: .85rem;
+    background: rgba(7, 13, 29, .45);
+    padding: .95rem 1rem;
+}
+
+.auth-textarea {
+    min-height: 140px;
+    resize: vertical;
+}
+
+.form-error-message,
+.invalid-feedback {
+    color: #f87171;
+    margin-top: .5rem;
+    font-size: .9rem;
+}

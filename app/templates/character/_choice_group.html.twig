@@ -1,0 +1,18 @@
+<div class="builder-field-group">
+    {{ form_label(field, null, {
+        label_attr: {
+            class: 'builder-label'
+        }
+    }) }}
+
+    <div class="{{ className }}">
+        {% for choice in field %}
+            <div class="builder-choice">
+                {{ form_widget(choice) }}
+                {{ form_label(choice) }}
+            </div>
+        {% endfor %}
+    </div>
+
+    {{ form_errors(field) }}
+</div>

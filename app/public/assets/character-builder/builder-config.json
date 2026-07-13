@@ -1,0 +1,311 @@
+{
+    "defaults": {
+      "gender": "non_binary",
+      "skinColor": "light",
+      "hairColor": "black",
+      "eyeColor": "brown",
+      "eyeShape": "round",
+      "noseShape": "straight",
+      "mouthShape": "neutral"
+    },
+    "labels": {
+      "gender": {
+        "male": "Masculin",
+        "female": "Féminin",
+        "non_binary": "Non-binaire"
+      }
+    },
+    "layers": {
+      "body": {
+        "male.light": {
+          "tiles": [
+            {
+              "tile": "tile_r00_c00"
+            }
+          ]
+        },
+        "male.brown": {
+          "tiles": [
+            {
+              "tile": "tile_r01_c00"
+            }
+          ]
+        },
+        "male.dark": {
+          "tiles": [
+            {
+              "tile": "tile_r02_c01"
+            }
+          ]
+        },
+        "male.green": {
+          "tiles": [
+            {
+              "tile": "tile_r03_c00"
+            }
+          ]
+        },
+        "female.light": {
+          "tiles": [
+            {
+              "tile": "tile_r00_c00"
+            }
+          ]
+        },
+        "female.brown": {
+          "tiles": [
+            {
+              "tile": "tile_r01_c00"
+            }
+          ]
+        },
+        "female.dark": {
+          "tiles": [
+            {
+              "tile": "tile_r02_c01"
+            }
+          ]
+        },
+        "female.green": {
+          "tiles": [
+            {
+              "tile": "tile_r03_c00"
+            }
+          ]
+        },
+        "non_binary.light": {
+          "tiles": [
+            {
+              "tile": "tile_r00_c00"
+            }
+          ]
+        },
+        "non_binary.brown": {
+          "tiles": [
+            {
+              "tile": "tile_r01_c00"
+            }
+          ]
+        },
+        "non_binary.dark": {
+          "tiles": [
+            {
+              "tile": "tile_r02_c01"
+            }
+          ]
+        },
+        "non_binary.green": {
+          "tiles": [
+            {
+              "tile": "tile_r03_c00"
+            }
+          ]
+        }
+      },
+      "hair": {
+        "male.black": {
+          "tiles": [
+            {
+              "tile": "tile_r04_c23"
+            }
+          ]
+        },
+        "male.brown": {
+          "tiles": [
+            {
+              "tile": "tile_r00_c19"
+            }
+          ]
+        },
+        "male.blond": {
+          "tiles": [
+            {
+              "tile": "tile_r04_c19"
+            }
+          ]
+        },
+        "male.white": {
+          "tiles": [
+            {
+              "tile": "tile_r08_c19"
+            }
+          ]
+        },
+        "male.orange": {
+          "tiles": [
+            {
+              "tile": "tile_r00_c23"
+            }
+          ]
+        },
+        "female.black": {
+          "tiles": [
+            {
+              "tile": "tile_r05_c24"
+            }
+          ]
+        },
+        "female.brown": {
+          "tiles": [
+            {
+              "tile": "tile_r01_c20"
+            }
+          ]
+        },
+        "female.blond": {
+          "tiles": [
+            {
+              "tile": "tile_r05_c20"
+            }
+          ]
+        },
+        "female.white": {
+          "tiles": [
+            {
+              "tile": "tile_r09_c20"
+            }
+          ]
+        },
+        "female.orange": {
+          "tiles": [
+            {
+              "tile": "tile_r01_c24"
+            }
+          ]
+        },
+        "non_binary.black": {
+          "tiles": [
+            {
+              "tile": "tile_r04_c24"
+            }
+          ]
+        },
+        "non_binary.brown": {
+          "tiles": [
+            {
+              "tile": "tile_r00_c20"
+            }
+          ]
+        },
+        "non_binary.blond": {
+          "tiles": [
+            {
+              "tile": "tile_r04_c20"
+            }
+          ]
+        },
+        "non_binary.white": {
+          "tiles": [
+            {
+              "tile": "tile_r08_c20"
+            }
+          ]
+        },
+        "non_binary.orange": {
+          "tiles": [
+            {
+              "tile": "tile_r00_c24"
+            }
+          ]
+        }
+      },
+      "eyes": {
+        "position": {
+            "centerX": 160,
+            "centerY": 148,
+            "gap": 38
+        },
+        "shapes": {
+          "round": {
+            "width": 18,
+            "height": 18,
+            "radius": 9
+          },
+          "almond": {
+            "width": 24,
+            "height": 12,
+            "radius": 6
+          },
+          "narrow": {
+            "width": 24,
+            "height": 7,
+            "radius": 4
+          },
+          "large": {
+            "width": 24,
+            "height": 22,
+            "radius": 11
+          }
+        },
+        "colors": {
+          "brown": "#7a4b24",
+          "blue": "#2d8cff",
+          "green": "#2f9e44",
+          "amber": "#d99a22",
+          "purple": "#7c3aed",
+          "red": "#d62828",
+          "yellow": "#f4d03f",
+          "gray": "#9ca3af"
+        }
+      },
+      "nose": {
+        "position": {
+          "centerX": 160,
+          "centerY": 155
+        },
+        "color": "#9d704c",
+        "shapes": {
+          "small": {
+            "width": 5,
+            "height": 9,
+            "type": "vertical"
+          },
+          "wide": {
+            "width": 14,
+            "height": 7,
+            "type": "wide"
+          },
+          "upturned": {
+            "width": 10,
+            "height": 8,
+            "type": "upturned"
+          },
+          "straight": {
+            "width": 7,
+            "height": 12,
+            "type": "straight"
+          }
+        }
+      },
+      "mouth": {
+        "position": {
+          "centerX": 160,
+          "centerY": 170
+        },
+        "color": "#7f3f3f",
+        "innerColor": "#3a171b",
+        "shapes": {
+          "thin": {
+            "width": 22,
+            "height": 3,
+            "type": "thin"
+          },
+          "full": {
+            "width": 24,
+            "height": 8,
+            "type": "full"
+          },
+          "smiling": {
+            "width": 25,
+            "height": 9,
+            "type": "smile"
+          },
+          "neutral": {
+            "width": 20,
+            "height": 4,
+            "type": "neutral"
+          }
+        }
+      }
+    }
+  }

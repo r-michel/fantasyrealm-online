@@ -1,20 +1,200 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello AccountController!{% endblock %}
+{% block title %}Mon espace{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+<section class="account-page">
+    <div class="container py-5">
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+        <header class="account-header">
+            <div>
+                <h1 class="account-title">
+                    Bonjour, {{ app.user.username }}
+                </h1>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/var/www/src/Controller/AccountController.php</code></li>
-        <li>Your template at <code>/var/www/templates/account/index.html.twig</code></li>
-    </ul>
-</div>
+                <p class="account-subtitle">
+                    Gérez vos personnages depuis votre espace créateur.
+                </p>
+            </div>
+
+            <a
+                href="{{ path('app_character_new') }}"
+                class="btn account-new-button"
+            >
+                <i class="bi bi-plus-lg"></i>
+                Nouveau personnage
+            </a>
+        </header>
+
+        {% if characters is empty %}
+            <div class="account-empty">
+                <div class="account-empty-icon">
+                    <i class="bi bi-person-plus"></i>
+                </div>
+
+                <h2>Vous n’avez pas encore de personnage</h2>
+
+                <p>
+                    Commencez à créer votre première légende dans FantasyRealm Online.
+                </p>
+
+                <a
+                    href="{{ path('app_character_new') }}"
+                    class="btn account-new-button"
+                >
+                    <i class="bi bi-stars"></i>
+                    Créer mon premier personnage
+                </a>
+            </div>
+        {% else %}
+            <div class="character-account-list">
+                {% for character in characters %}
+                    <article class="character-account-card">
+                        <div class="character-account-main">
+
+                            <div class="character-account-avatar">
+                                {% if character.imageFilename %}
+                                    <img
+                                        src="{{ asset('uploads/characters/' ~ character.imageFilename) }}"
+                                        alt="Portrait de {{ character.name }}"
+                                    >
+                                {% else %}
+                                    <div class="character-avatar-placeholder">
+                                        <i class="bi bi-person"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="character-account-content">
+                                <div class="character-heading">
+                                    <h2 class="character-account-name">
+                                        {{ character.name }}
+                                    </h2>
+
+                                    {% if character.status == 'approved' %}
+                                        <span class="character-status character-status-approved">
+                                            <i class="bi bi-check-circle"></i>
+                                            Approuvé
+                                        </span>
+                                    {% elseif character.status == 'pending' %}
+                                        <span class="character-status character-status-pending">
+                                            <i class="bi bi-clock"></i>
+                                            En attente
+                                        </span>
+                                    {% else %}
+                                        <span class="character-status character-status-draft">
+                                            <i class="bi bi-pencil"></i>
+                                            Brouillon
+                                        </span>
+                                    {% endif %}
+
+                                    {% if character.shared %}
+                                        <span class="character-status character-status-shared">
+                                            <i class="bi bi-globe2"></i>
+                                            Partagé
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                                <p class="character-account-meta">
+                                    {{ character.gender }}
+                                    <span aria-hidden="true">·</span>
+                                    Créé le {{ character.createdAt|date('d/m/Y') }}
+                                </p>
+
+                                {% if character.status == 'pending' %}
+                                    <p class="character-account-notice">
+                                        <i class="bi bi-info-circle"></i>
+                                        En attente de validation par un membre de notre équipe.
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="character-account-actions">
+
+                            {% if character.status != 'pending' %}
+                                <a
+                                    href="{{ path('app_character_edit', {id: character.id}) }}"
+                                    class="character-action-button"
+                                >
+                                    <i class="bi bi-pencil"></i>
+                                    Modifier
+                                </a>
+                            {% endif %}
+
+                            {% if character.status == 'approved' %}
+                                <form
+                                    method="post"
+                                    action="{{ path('app_character_toggle_share', {id: character.id}) }}"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="_token"
+                                        value="{{ csrf_token('toggle-share-' ~ character.id) }}"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="character-action-button character-action-deploy"
+                                    >
+                                        <i class="bi bi-globe2"></i>
+
+                                        {% if character.shared %}
+                                            Retirer du partage
+                                        {% else %}
+                                            Déployer
+                                        {% endif %}
+                                    </button>
+                                </form>
+                            {% endif %}
+
+                            <form
+                                method="post"
+                                action="{{ path('app_character_duplicate', {id: character.id}) }}"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="_token"
+                                    value="{{ csrf_token('duplicate-' ~ character.id) }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="character-action-button"
+                                >
+                                    <i class="bi bi-copy"></i>
+                                    Dupliquer
+                                </button>
+                            </form>
+
+                            <form
+                                method="post"
+                                action="{{ path('app_character_delete', {id: character.id}) }}"
+                                onsubmit="return confirm(
+                                    'Voulez-vous vraiment supprimer ce personnage ?'
+                                );"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="_token"
+                                    value="{{ csrf_token('delete' ~ character.id) }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="character-action-button character-action-delete"
+                                >
+                                    <i class="bi bi-trash"></i>
+                                    Supprimer
+                                </button>
+                            </form>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+    </div>
+</section>
 {% endblock %}

@@ -1,0 +1,10 @@
+link.expired: "Ce lien a expiré."
+
+expires_in:
+    less_than_a_minute: "moins d'une minute"
+    hour: "1 heure"
+    hours: "%count% heures"
+    minute: "1 minute"
+    minutes: "%count% minutes"
+    day: "1 jour"
+    days: "%count% jours"

@@ -561,6 +561,12 @@ body {
     color: var(--color-white);
 }
 
+.auth-help {
+    color: var(--color-text-muted);
+    margin-top: .5rem;
+    font-size: .9rem;
+}
+
 /* =========================
    LEGAL PAGE
 ========================= */

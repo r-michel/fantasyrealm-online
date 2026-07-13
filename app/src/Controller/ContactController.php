@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class ContactController extends AbstractController
 {
@@ -20,6 +21,8 @@ class ContactController extends AbstractController
         Request $request,
         UserRepository $userRepository,
         MailerInterface $mailer,
+        #[Autowire('%env(CONTACT_EMAIL)%')]
+        string $contactEmail,
     ): Response {
         $contactRequest = new ContactRequest();
 
@@ -45,7 +48,7 @@ class ContactController extends AbstractController
             } else {
                 $email = (new Email())
                     ->from($contactRequest->email)
-                    ->to('contact@pixelverse.io')
+                    ->to($contactEmail)
                     ->subject('[FantasyRealm] ' . $contactRequest->subject)
                     ->text(sprintf(
                         "Pseudo : %s\nEmail : %s\n\nMessage :\n%s",

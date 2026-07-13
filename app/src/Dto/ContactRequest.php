@@ -18,6 +18,11 @@ class ContactRequest
     public ?string $subject = null;
 
     #[Assert\NotBlank]
-    #[Assert\Length(min: 20, max: 3000)]
+    #[Assert\Length(
+        min: 20,
+        max: 3000,
+        minMessage: 'Votre message doit contenir au moins {{ limit }} caractères.',
+        maxMessage: 'Votre message ne peut pas dépasser {{ limit }} caractères.'
+    )]
     public ?string $message = null;
 }

@@ -10,6 +10,7 @@ services:
     depends_on:
       - db
       - mongodb
+      - mailpit
     networks:
       - fantasyrealm
 
@@ -84,6 +85,15 @@ services:
       ME_CONFIG_MONGODB_SERVER: mongodb
     depends_on:
       - mongodb
+    networks:
+      - fantasyrealm
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: fantasyrealm_mailpit
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
     networks:
       - fantasyrealm
 

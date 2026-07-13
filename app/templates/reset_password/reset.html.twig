@@ -1,0 +1,92 @@
+{% extends 'auth/_auth_card.html.twig' %}
+
+{% set active_tab = null %}
+
+{% block title %}Choisir un nouveau mot de passe{% endblock %}
+
+{% block auth_form %}
+    <div class="auth-form-heading text-center mb-4">
+        <h1 class="auth-form-title">
+            Nouveau mot de passe
+        </h1>
+
+        <p class="auth-form-description">
+            Choisissez un nouveau mot de passe sécurisé pour votre compte.
+        </p>
+    </div>
+
+    {{ form_start(resetForm) }}
+
+        <div class="mb-4">
+            {{ form_label(
+                resetForm.plainPassword.first,
+                'Nouveau mot de passe',
+                {
+                    label_attr: {
+                        class: 'auth-label'
+                    }
+                }
+            ) }}
+
+            <div class="auth-input-wrapper">
+                <i class="bi bi-lock"></i>
+
+                {{ form_widget(resetForm.plainPassword.first, {
+                    attr: {
+                        class: 'auth-input',
+                        placeholder: '••••••••••••',
+                        autocomplete: 'new-password'
+                    }
+                }) }}
+            </div>
+
+            {{ form_errors(resetForm.plainPassword.first) }}
+        </div>
+
+        <div class="mb-4">
+            {{ form_label(
+                resetForm.plainPassword.second,
+                'Confirmer le mot de passe',
+                {
+                    label_attr: {
+                        class: 'auth-label'
+                    }
+                }
+            ) }}
+
+            <div class="auth-input-wrapper">
+                <i class="bi bi-shield-lock"></i>
+
+                {{ form_widget(resetForm.plainPassword.second, {
+                    attr: {
+                        class: 'auth-input',
+                        placeholder: '••••••••••••',
+                        autocomplete: 'new-password'
+                    }
+                }) }}
+            </div>
+
+            {{ form_errors(resetForm.plainPassword.second) }}
+        </div>
+
+        {{ form_errors(resetForm.plainPassword) }}
+
+        <p class="auth-help mb-4">
+            Le mot de passe doit contenir au moins 12 caractères, dont une majuscule,
+            une minuscule, un chiffre et un caractère spécial.
+        </p>
+
+        <button type="submit" class="btn auth-submit w-100">
+            <i class="bi bi-key me-2"></i>
+            Enregistrer le nouveau mot de passe
+        </button>
+
+        <div class="text-center mt-4">
+            <a href="{{ path('app_login') }}" class="auth-back-link">
+                <i class="bi bi-arrow-left me-2"></i>
+                Retour à la connexion
+            </a>
+        </div>
+
+    {{ form_end(resetForm) }}
+{% endblock %}

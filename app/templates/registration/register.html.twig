@@ -49,6 +49,11 @@
             label_attr: { class: 'auth-label' }
         }) }}
 
+        <p class="form-text auth-help">
+            Minimum 12 caractères, avec une majuscule, une minuscule,
+            un chiffre et un caractère spécial.
+        </p>
+
         <div class="auth-input-wrapper">
             <i class="bi bi-lock"></i>
             {{ form_widget(registrationForm.plainPassword, {

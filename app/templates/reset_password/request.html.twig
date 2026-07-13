@@ -1,0 +1,51 @@
+{% extends 'auth/_auth_card.html.twig' %}
+
+{% set active_tab = null %}
+
+{% block title %}Mot de passe oublié{% endblock %}
+
+{% block auth_form %}
+    <div class="auth-form-heading text-center mb-4">
+        <h1 class="auth-form-title">Mot de passe oublié</h1>
+
+        <p class="auth-form-description">
+            Saisissez votre adresse e-mail. Nous vous enverrons un lien pour choisir un nouveau mot de passe.
+        </p>
+    </div>
+
+    {{ form_start(requestForm) }}
+
+        <div class="mb-4">
+            {{ form_label(requestForm.email, 'Adresse e-mail', {
+                label_attr: { class: 'auth-label' }
+            }) }}
+
+            <div class="auth-input-wrapper">
+                <i class="bi bi-envelope"></i>
+
+                {{ form_widget(requestForm.email, {
+                    attr: {
+                        class: 'auth-input',
+                        placeholder: 'votre@email.com',
+                        autocomplete: 'email'
+                    }
+                }) }}
+            </div>
+
+            {{ form_errors(requestForm.email) }}
+        </div>
+
+        <button class="btn auth-submit w-100" type="submit">
+            <i class="bi bi-send me-2"></i>
+            Envoyer le lien de réinitialisation
+        </button>
+
+        <div class="text-center mt-4">
+            <a href="{{ path('app_login') }}" class="auth-back-link">
+                <i class="bi bi-arrow-left me-2"></i>
+                Retour à la connexion
+            </a>
+        </div>
+
+    {{ form_end(requestForm) }}
+{% endblock %}

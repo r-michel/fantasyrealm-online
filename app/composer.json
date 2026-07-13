@@ -21,9 +21,11 @@
         "symfony/maker-bundle": "^1.67",
         "symfony/runtime": "7.4.*",
         "symfony/security-bundle": "7.4.*",
+        "symfony/translation": "7.4.*",
         "symfony/twig-bundle": "7.4.*",
         "symfony/validator": "7.4.*",
         "symfony/yaml": "7.4.*",
+        "symfonycasts/reset-password-bundle": "^1.25",
         "symfonycasts/verify-email-bundle": "*",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0"

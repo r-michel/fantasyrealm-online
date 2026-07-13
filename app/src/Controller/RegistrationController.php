@@ -5,10 +5,12 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\RegistrationFormType;
 use App\Security\EmailVerifier;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Address;
@@ -23,7 +25,12 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, Security $security, EntityManagerInterface $entityManager): Response
+    public function register(
+        Request $request,
+        UserPasswordHasherInterface $userPasswordHasher,
+        Security $security,
+        EntityManagerInterface $entityManager
+    ): Response
     {
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
@@ -33,24 +40,26 @@ class RegistrationController extends AbstractController
             /** @var string $plainPassword */
             $plainPassword = $form->get('plainPassword')->getData();
 
-            // encode the plain password
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
+            $user->setRoles(['ROLE_USER']);
 
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // generate a signed url and email it to the user
             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
                 (new TemplatedEmail())
                     ->from(new Address('mailer@fantasyrealm-online.local', 'FantasyRealm Online'))
                     ->to((string) $user->getUserIdentifier())
-                    ->subject('Please Confirm your Email')
+                    ->subject('Veuillez confirmer votre email')
                     ->htmlTemplate('registration/confirmation_email.html.twig')
             );
 
-            // do anything else you need here, like send an email
+            $this->addFlash(
+                'success',
+                'Votre compte a été créé. Consultez votre boîte mail pour valider votre adresse.'
+            );
 
-            return $security->login($user, 'form_login', 'main');
+            return $this->redirectToRoute('app_login');
         }
 
         return $this->render('registration/register.html.twig', [
@@ -59,24 +68,41 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/verify/email', name: 'app_verify_email')]
-    public function verifyUserEmail(Request $request): Response
+    public function verifyUserEmail(
+        Request $request,
+        UserRepository $userRepository,
+    ): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-
-        // validate email confirmation link, sets User::isVerified=true and persists
-        try {
-            /** @var User $user */
-            $user = $this->getUser();
-            $this->emailVerifier->handleEmailConfirmation($request, $user);
-        } catch (VerifyEmailExceptionInterface $exception) {
-            $this->addFlash('verify_email_error', $exception->getReason());
-
-            return $this->redirectToRoute('app_register');
+        $userId = $request->query->get('id');
+        if (!$userId) {
+            throw new NotFoundHttpException(
+                'L’identifiant de l’utilisateur est absent du lien de vérification.'
+            );
         }
 
-        // @TODO Change the redirect on success and handle or remove the flash message in your templates
-        $this->addFlash('success', 'Your email address has been verified.');
+        $user = $userRepository->find($userId);
+        if (!$user) {
+            throw new NotFoundHttpException(
+                'L’utilisateur associé à ce lien est introuvable.'
+            );
+        }
 
-        return $this->redirectToRoute('app_register');
+        try {
+            $this->emailVerifier->handleEmailConfirmation($request, $user);
+        } catch (VerifyEmailExceptionInterface $exception) {
+            $this->addFlash(
+                'danger',
+                'Le lien de vérification est invalide ou a expiré.'
+            );
+
+            return $this->redirectToRoute('app_login');
+        }
+
+        $this->addFlash(
+            'success',
+            'Votre adresse e-mail a bien été vérifiée. Vous pouvez maintenant vous connecter.'
+        );
+
+    return $this->redirectToRoute('app_login');
     }
 }

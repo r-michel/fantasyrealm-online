@@ -1,0 +1,44 @@
+<h1>Réinitialisation de votre mot de passe</h1>
+
+<p>
+    Vous avez demandé la réinitialisation du mot de passe de votre compte
+    <strong>FantasyRealm Online</strong>.
+</p>
+
+<p>
+    Pour choisir un nouveau mot de passe, cliquez sur le lien ci-dessous :
+</p>
+
+<p>
+    <a href="{{ url('app_reset_password', {token: resetToken.token}) }}">
+        Réinitialiser mon mot de passe
+    </a>
+</p>
+
+<p>
+    Si le bouton ne fonctionne pas, vous pouvez également copier et coller ce lien dans votre navigateur :
+</p>
+
+<p>
+    {{ url('app_reset_password', {token: resetToken.token}) }}
+</p>
+
+<p>
+    Ce lien expirera dans
+    <strong>
+        {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}
+    </strong>.
+</p>
+
+<p>
+    Si vous n'êtes pas à l'origine de cette demande, vous pouvez simplement ignorer cet e-mail.
+    Votre mot de passe actuel restera inchangé.
+</p>
+
+<p>
+    À bientôt sur <strong>FantasyRealm Online</strong> !
+</p>
+
+<p>
+    L'équipe <strong>PixelVerse Studio</strong>
+</p>

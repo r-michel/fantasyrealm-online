@@ -642,3 +642,104 @@ body {
     margin-top: .5rem;
     font-size: .9rem;
 }
+
+/* =========================
+   FLASH MESSAGES
+========================= */
+
+.flash {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    margin: 2rem 0;
+    padding: 1rem 1.5rem;
+
+    border-radius: 1rem;
+    border: 1px solid;
+
+    animation: flashFadeIn .3s ease;
+}
+
+.flash-icon {
+    font-size: 1.3rem;
+}
+
+.flash-message {
+    flex: 1;
+}
+
+.flash-success {
+    background: rgba(34, 197, 94, .12);
+    border-color: rgba(34, 197, 94, .35);
+    color: #86efac;
+}
+
+.flash-error {
+    background: rgba(239, 68, 68, .12);
+    border-color: rgba(239, 68, 68, .35);
+    color: #fca5a5;
+}
+
+.flash-info {
+    background: rgba(59, 130, 246, .12);
+    border-color: rgba(59, 130, 246, .35);
+    color: #93c5fd;
+}
+
+.flash .btn-close {
+    filter: invert(1) grayscale(100%);
+    opacity: .6;
+}
+
+@keyframes flashFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================
+   FORM ERRORS
+========================= */
+
+.form-error-message,
+.invalid-feedback,
+ul.form-errors {
+    color: #f87171;
+    font-size: .9rem;
+    font-weight: 500;
+    margin-top: .5rem;
+    list-style: none;
+    padding-left: 0;
+}
+
+.form-error-message ul,
+.invalid-feedback ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.form-error-message li,
+.invalid-feedback li {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.form-error-message li::before,
+.invalid-feedback li::before {
+    content: "⚠";
+    font-size: .9rem;
+}
+
+.auth-input-error {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 .2rem rgba(239, 68, 68, .15);
+}

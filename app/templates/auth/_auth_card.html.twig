@@ -20,21 +20,23 @@
 
         <div class="auth-card mx-auto">
 
-            <div class="auth-tabs mb-4">
-                <a
-                    href="{{ path('app_login') }}"
-                    class="auth-tab {{ active_tab == 'login' ? 'active' : '' }}"
-                >
-                    Connexion
-                </a>
+            {% if active_tab is not null %}
+                <div class="auth-tabs mb-4">
+                    <a
+                        href="{{ path('app_login') }}"
+                        class="auth-tab {{ active_tab == 'login' ? 'active' : '' }}"
+                    >
+                        Connexion
+                    </a>
 
-                <a
-                    href="{{ path('app_register') }}"
-                    class="auth-tab {{ active_tab == 'register' ? 'active' : '' }}"
-                >
-                    Créer un compte
-                </a>
-            </div>
+                    <a
+                        href="{{ path('app_register') }}"
+                        class="auth-tab {{ active_tab == 'register' ? 'active' : '' }}"
+                    >
+                        Créer un compte
+                    </a>
+                </div>
+                {% endif %}
 
             {% block auth_form %}{% endblock %}
 

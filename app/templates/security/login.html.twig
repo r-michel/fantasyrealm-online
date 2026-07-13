@@ -50,6 +50,15 @@
         </div>
     </div>
 
+    <div class="d-flex justify-content-end mb-4">
+        <a
+            href="{{ path('app_forgot_password_request') }}"
+            class="auth-forgot-password"
+        >
+            Mot de passe oublié ?
+        </a>
+    </div>
+
     <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
     <button class="btn auth-submit w-100" type="submit">

@@ -588,9 +588,12 @@ export class CharacterRenderer {
 
     /**
      * @param {Array<object>} layers
+     * @param {boolean} clear
      */
-    render(layers) {
-        this.clear();
+    render(layers, clear = true) {
+        if (clear) {
+            this.clear();
+        }
 
         layers
             .filter(Boolean)

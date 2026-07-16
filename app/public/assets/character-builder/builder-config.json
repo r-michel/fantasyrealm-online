@@ -307,5 +307,31 @@
           }
         }
       }
-    }
+    },
+    "equipmentCategories": {
+        "clothing": {
+          "scale": 1,
+          "offsetX": 0,
+          "offsetY": 50,
+          "zIndex": 100
+        },
+        "armor": {
+          "scale": 1,
+          "offsetX": 0,
+          "offsetY": 50,
+          "zIndex": 110
+        },
+        "accessory": {
+          "scale": 1,
+          "offsetX": 0,
+          "offsetY": 0,
+          "zIndex": 200
+        },
+        "weapon": {
+          "scale": 1,
+          "offsetX": 0,
+          "offsetY": 0,
+          "zIndex": 300
+        }
+      }
   }

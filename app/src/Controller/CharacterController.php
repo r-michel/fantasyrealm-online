@@ -43,6 +43,17 @@ final class CharacterController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if ($this->hasDuplicateEquipmentCategories($character)) {
+                $this->addFlash(
+                    'danger',
+                    'Vous ne pouvez sélectionner qu’un équipement par catégorie.',
+                );
+
+                return $this->render('character/new.html.twig', [
+                    'characterForm' => $form,
+                ]);
+            }
+
             $generatedImage = $form
                 ->get('generatedImage')
                 ->getData();
@@ -163,4 +174,28 @@ final class CharacterController extends AbstractController
 
         return $binary;
     }
+
+    private function hasDuplicateEquipmentCategories(
+        Character $character,
+    ): bool {
+        $categories = [];
+
+        foreach ($character->getEquipment() as $equipment) {
+            $categoryCode = $equipment
+                ->getCategory()
+                ?->getCode();
+
+            if ($categoryCode === null) {
+                continue;
+            }
+
+            if (isset($categories[$categoryCode])) {
+                return true;
+            }
+
+            $categories[$categoryCode] = true;
+        }
+
+        return false;
     }
+}

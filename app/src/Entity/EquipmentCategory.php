@@ -15,6 +15,9 @@ class EquipmentCategory
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(length: 50, unique: true)]
+    private ?string $code = null;
+
     #[ORM\Column(length: 50)]
     private ?string $name = null;
 
@@ -38,6 +41,18 @@ class EquipmentCategory
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
+    public function setCode(string $code): static
+    {
+        $this->code = $code;
+
+        return $this;
     }
 
     public function getName(): ?string

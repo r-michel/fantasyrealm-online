@@ -161,13 +161,22 @@ final class CharacterType extends AbstractType
                             ->getCategory()
                             ?->getId(),
 
+                        'data-category-code' => $equipment
+                            ->getCategory()
+                            ?->getCode() ?? '',
+
                         'data-category-name' => $equipment
                             ->getCategory()
                             ?->getName() ?? '',
 
                         'data-image-url' => $this->urlGenerator->generate(
                             'app_equipment_image',
-                            ['id' => $equipment->getId()],
+                            [
+                                'id' => $equipment->getId(),
+                                'v' => $equipment->getUpdatedAt()?->getTimestamp()
+                                    ?? $equipment->getCreatedAt()?->getTimestamp()
+                                    ?? 1,
+                            ],
                         ),
                     ];
                 },

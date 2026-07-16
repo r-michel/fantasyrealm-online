@@ -47,9 +47,11 @@ class CharacterBuilder {
         this.renderer = await new CharacterRenderer(
             this.canvas,
         ).load();
+
         this.renderer.builderConfig = this.config;
 
         this.bindFormEvents();
+        this.bindEquipmentSelection();
         this.bindSubmission();
 
         await this.updatePreview();
@@ -150,6 +152,7 @@ class CharacterBuilder {
             equipment: this.getSelectedEquipmentInputs().map((input) => ({
                 id: input.value,
                 imageUrl: input.dataset.imageUrl || null,
+                category: input.dataset.categoryCode || null,
             })),
         };
     }
@@ -164,7 +167,6 @@ class CharacterBuilder {
             'eyeShape',
             'noseShape',
             'mouthShape',
-            'equipment',
         ];
 
         watchedProperties.forEach((property) => {
@@ -216,6 +218,41 @@ class CharacterBuilder {
         });
     }
 
+    bindEquipmentSelection() {
+        const equipmentInputs = this.getInputs('equipment');
+
+        equipmentInputs.forEach((input) => {
+            input.addEventListener('change', () => {
+                if (!input.checked) {
+                    return;
+                }
+
+                const selectedCategory =
+                    input.dataset.categoryCode;
+
+                if (!selectedCategory) {
+                    return;
+                }
+
+                equipmentInputs.forEach((otherInput) => {
+                    if (
+                        otherInput !== input
+                        && otherInput.dataset.categoryCode === selectedCategory
+                    ) {
+                        otherInput.checked = false;
+                    }
+                });
+
+                this.updatePreview().catch((error) => {
+                    console.error(
+                        'Erreur pendant la mise à jour des équipements.',
+                        error,
+                    );
+                });
+            });
+        });
+    }
+
     /**
      * Find a layer in config
      *
@@ -233,30 +270,28 @@ class CharacterBuilder {
      * @returns {Array<object>}
      */
     buildLayers(state) {
-        const layers = [];
+        return {
+            body: [
+                this.findLayer(
+                    'body',
+                    `${state.gender}.${state.skinColor}`,
+                ),
+            ].filter(Boolean),
 
-        layers.push(
-            this.findLayer(
-                'body',
-                `${state.gender}.${state.skinColor}`,
-            ),
-        );
-
-        layers.push(
-            this.findLayer(
-                'hair',
-                `${state.gender}.${state.hairColor}`,
-            ),
-        );
-
-        return layers.filter(Boolean);
+            hair: [
+                this.findLayer(
+                    'hair',
+                    `${state.gender}.${state.hairColor}`,
+                ),
+            ].filter(Boolean),
+        };
     }
 
     async updatePreview() {
         const state = this.getState();
-        const atlasLayers = this.buildLayers(state);
+        const layers = this.buildLayers(state);
 
-        this.renderer.render(atlasLayers);
+        this.renderer.render(layers.body);
         this.renderer.drawEyes({
             shape: state.eyeShape,
             color: state.eyeColor,
@@ -267,7 +302,11 @@ class CharacterBuilder {
         this.renderer.drawMouth({
             shape: state.mouthShape,
         });
+
         await this.drawEquipmentLayers(state.equipment);
+
+        this.renderer.render(layers.hair, false);
+
         this.updateTextPreview(state);
 
         this.generatedImageInput.value = this.renderer.toDataUrl('image/png');
@@ -294,7 +333,25 @@ class CharacterBuilder {
     }
 
     async drawEquipmentLayers(equipmentItems) {
-        for (const equipment of equipmentItems) {
+        const categoriesConfig =
+            this.config?.equipmentCategories ?? {};
+
+        const configuredItems = equipmentItems
+            .map((equipment) => {
+                const categoryConfig =
+                    categoriesConfig[equipment.category] ?? {};
+
+                return {
+                    ...equipment,
+                    scale: Number(categoryConfig.scale ?? 1),
+                    offsetX: Number(categoryConfig.offsetX ?? 0),
+                    offsetY: Number(categoryConfig.offsetY ?? 0),
+                    zIndex: Number(categoryConfig.zIndex ?? 100),
+                };
+            })
+            .sort((a, b) => a.zIndex - b.zIndex);
+
+        for (const equipment of configuredItems) {
             if (!equipment.imageUrl) {
                 continue;
             }
@@ -303,13 +360,29 @@ class CharacterBuilder {
                 equipment.imageUrl,
             );
 
+            const width = image.naturalWidth * equipment.scale;
+            const height = image.naturalHeight * equipment.scale;
+
+            const x =
+                (this.renderer.canvas.width - width) / 2
+                + equipment.offsetX;
+
+            const y =
+                (this.renderer.canvas.height - height) / 2
+                + equipment.offsetY;
+
+            this.renderer.context.save();
+            this.renderer.context.imageSmoothingEnabled = false;
+
             this.renderer.context.drawImage(
                 image,
-                0,
-                0,
-                this.renderer.canvas.width,
-                this.renderer.canvas.height,
+                Math.round(x),
+                Math.round(y),
+                Math.round(width),
+                Math.round(height),
             );
+
+            this.renderer.context.restore();
         }
     }
 

@@ -11,25 +11,76 @@ use Doctrine\Persistence\ObjectManager;
 final class EquipmentFixtures extends Fixture implements FixtureGroupInterface
 {
     private const CATALOGUE = [
-        'Vêtements' => [
-            'Tunique de soie',
-            'Cape du chasseur',
-            'Robe de mage',
+        'clothing' => [
+            'name' => 'Vêtements',
+            'equipment' => [
+                [
+                    'name' => 'Tunique de soie',
+                    'image' => 'clothing/silk-tunic.png',
+                ],
+                [
+                    'name' => 'Cape du chasseur',
+                    'image' => 'clothing/hunter-cape.png',
+                ],
+                [
+                    'name' => 'Robe de mage',
+                    'image' => 'clothing/mage-robe.png',
+                ],
+            ],
         ],
-        'Armures' => [
-            'Armure de cuir',
-            'Cotte de mailles',
-            'Armure du gardien',
+
+        'armor' => [
+            'name' => 'Armures',
+            'equipment' => [
+                [
+                    'name' => 'Armure de cuir',
+                    'image' => null,
+                ],
+                [
+                    'name' => 'Cotte de mailles',
+                    'image' => null,
+                ],
+                [
+                    'name' => 'Armure du gardien',
+                    'image' => null,
+                ],
+            ],
         ],
-        'Accessoires' => [
-            'Amulette ancienne',
-            'Anneau runique',
-            'Ceinture de voyage',
+
+        'accessory' => [
+            'name' => 'Accessoires',
+            'equipment' => [
+                [
+                    'name' => 'Amulette ancienne',
+                    'image' => null,
+                ],
+                [
+                    'name' => 'Anneau runique',
+                    'image' => null,
+                ],
+                [
+                    'name' => 'Ceinture de voyage',
+                    'image' => null,
+                ],
+            ],
         ],
-        'Armes' => [
-            'Épée longue',
-            'Arc sylvestre',
-            'Bâton arcanique',
+
+        'weapon' => [
+            'name' => 'Armes',
+            'equipment' => [
+                [
+                    'name' => 'Épée longue',
+                    'image' => null,
+                ],
+                [
+                    'name' => 'Arc sylvestre',
+                    'image' => null,
+                ],
+                [
+                    'name' => 'Bâton arcanique',
+                    'image' => null,
+                ],
+            ],
         ],
     ];
 
@@ -40,25 +91,86 @@ final class EquipmentFixtures extends Fixture implements FixtureGroupInterface
 
     public function load(ObjectManager $manager): void
     {
+        $categoryRepository = $manager->getRepository(
+            EquipmentCategory::class,
+        );
+
+        $equipmentRepository = $manager->getRepository(
+            Equipment::class,
+        );
+
         $now = new \DateTimeImmutable();
 
-        foreach (self::CATALOGUE as $categoryName => $equipmentNames) {
-            $category = new EquipmentCategory();
+        foreach (self::CATALOGUE as $categoryCode => $categoryData) {
+            /** @var EquipmentCategory|null $category */
+            $category = $categoryRepository->findOneBy([
+                'code' => $categoryCode,
+            ]);
+
+            if (!$category) {
+                $category = $categoryRepository->findOneBy([
+                    'name' => $categoryData['name'],
+                ]);
+            }
+
+            if (!$category) {
+                $category = new EquipmentCategory();
+                $category->setCreatedAt($now);
+
+                $manager->persist($category);
+            } else {
+                $category->setUpdatedAt($now);
+            }
+
             $category
-                ->setName($categoryName)
-                ->setCreatedAt($now);
+                ->setName($categoryData['name'])
+                ->setCode($categoryCode);
 
-            $manager->persist($category);
+            foreach ($categoryData['equipment'] as $item) {
+                /** @var Equipment|null $equipment */
+                $equipment = $equipmentRepository->findOneBy([
+                    'name' => $item['name'],
+                ]);
 
-            foreach ($equipmentNames as $equipmentName) {
-                $equipment = new Equipment();
+                if (!$equipment) {
+                    $equipment = new Equipment();
+                    $equipment
+                        ->setName($item['name'])
+                        ->setCreatedAt($now);
+
+                    $manager->persist($equipment);
+                } else {
+                    $equipment->setUpdatedAt($now);
+                }
+
                 $equipment
-                    ->setName($equipmentName)
                     ->setCategory($category)
-                    ->setActive(true)
-                    ->setCreatedAt($now);
+                    ->setActive(true);
 
-                $manager->persist($equipment);
+                if ($item['image'] !== null) {
+                    $imagePath = __DIR__
+                        . '/assets/equipment/'
+                        . $item['image'];
+
+                    if (!is_file($imagePath)) {
+                        throw new \RuntimeException(sprintf(
+                            'Image introuvable pour "%s" : %s',
+                            $item['name'],
+                            $imagePath,
+                        ));
+                    }
+
+                    $imageContent = file_get_contents($imagePath);
+
+                    if ($imageContent === false) {
+                        throw new \RuntimeException(sprintf(
+                            'Impossible de lire l’image de "%s".',
+                            $item['name'],
+                        ));
+                    }
+
+                    $equipment->setImage($imageContent);
+                }
             }
         }
 

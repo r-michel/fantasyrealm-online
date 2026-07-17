@@ -291,25 +291,37 @@ class CharacterBuilder {
         const state = this.getState();
         const layers = this.buildLayers(state);
 
+        const accessory = state.equipment.filter(
+            (equipment) => equipment.category === 'accessory',
+        );
+
+        const otherEquipment = state.equipment.filter(
+            (equipment) => equipment.category !== 'accessory',
+        );
+
         this.renderer.render(layers.body);
+
         this.renderer.drawEyes({
             shape: state.eyeShape,
             color: state.eyeColor,
         });
+
         this.renderer.drawNose({
             shape: state.noseShape,
         });
+
         this.renderer.drawMouth({
             shape: state.mouthShape,
         });
 
-        await this.drawEquipmentLayers(state.equipment);
-
+        await this.drawEquipmentLayers(otherEquipment);
         this.renderer.render(layers.hair, false);
+        await this.drawEquipmentLayers(accessory);
 
         this.updateTextPreview(state);
 
-        this.generatedImageInput.value = this.renderer.toDataUrl('image/png');
+        this.generatedImageInput.value =
+            this.renderer.toDataUrl('image/png');
     }
 
     updateTextPreview(state) {

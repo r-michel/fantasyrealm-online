@@ -324,13 +324,13 @@
         "accessory": {
           "scale": 1,
           "offsetX": 0,
-          "offsetY": 0,
+          "offsetY": -90,
           "zIndex": 200
         },
         "weapon": {
           "scale": 1,
-          "offsetX": 0,
-          "offsetY": 0,
+          "offsetX": 95,
+          "offsetY": 40,
           "zIndex": 300
         }
       }

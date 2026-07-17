@@ -34,15 +34,15 @@ final class EquipmentFixtures extends Fixture implements FixtureGroupInterface
             'equipment' => [
                 [
                     'name' => 'Armure de cuir',
-                    'image' => null,
+                    'image' => 'armor/leather-armor.png',
                 ],
                 [
                     'name' => 'Cotte de mailles',
-                    'image' => null,
+                    'image' => 'armor/chainmail-armor.png',
                 ],
                 [
                     'name' => 'Armure du gardien',
-                    'image' => null,
+                    'image' => 'armor/guardian-armor.png',
                 ],
             ],
         ],
@@ -51,16 +51,16 @@ final class EquipmentFixtures extends Fixture implements FixtureGroupInterface
             'name' => 'Accessoires',
             'equipment' => [
                 [
-                    'name' => 'Amulette ancienne',
-                    'image' => null,
+                    'name' => 'Chapeau d\'aventurier',
+                    'image' => 'accessory/adventurer-hat.png',
                 ],
                 [
-                    'name' => 'Anneau runique',
-                    'image' => null,
+                    'name' => 'Chapeau de mage',
+                    'image' => 'accessory/wizard-hat.png',
                 ],
                 [
-                    'name' => 'Ceinture de voyage',
-                    'image' => null,
+                    'name' => 'Casque',
+                    'image' => 'accessory/helmet.png',
                 ],
             ],
         ],
@@ -70,15 +70,15 @@ final class EquipmentFixtures extends Fixture implements FixtureGroupInterface
             'equipment' => [
                 [
                     'name' => 'Épée longue',
-                    'image' => null,
+                    'image' => 'weapon/blade.png',
                 ],
                 [
                     'name' => 'Arc sylvestre',
-                    'image' => null,
+                    'image' => 'weapon/bow.png',
                 ],
                 [
                     'name' => 'Bâton arcanique',
-                    'image' => null,
+                    'image' => 'weapon/staff.png',
                 ],
             ],
         ],

@@ -1,20 +1,200 @@
+{% set genderLabels = {
+    male: 'Masculin',
+    female: 'Féminin',
+    non_binary: 'Non-binaire'
+} %}
+
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello CharacterController!{% endblock %}
+{% block title %}Bibliothèque des personnages{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+<section class="character-library">
+    <div class="container py-5">
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+        <header class="character-library-header">
+            <h1 class="character-library-title">
+                Bibliothèque des personnages
+            </h1>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/var/www/src/Controller/CharacterController.php</code></li>
-        <li>Your template at <code>/var/www/templates/character/index.html.twig</code></li>
-    </ul>
-</div>
+            <p class="character-library-description">
+                Découvrez les personnages créés et partagés
+                par la communauté.
+            </p>
+        </header>
+
+        <form
+            method="get"
+            action="{{ path('app_character_index') }}"
+            class="character-library-filters"
+        >
+            <div class="character-filter-field">
+                <label for="character-filter-gender">
+                    Genre
+                </label>
+
+                <select
+                    id="character-filter-gender"
+                    name="gender"
+                >
+                    <option value="">Tous</option>
+
+                    <option
+                        value="male"
+                        {{ filters.gender == 'male'
+                            ? 'selected'
+                            : ''
+                        }}
+                    >
+                        Masculin
+                    </option>
+
+                    <option
+                        value="female"
+                        {{ filters.gender == 'female'
+                            ? 'selected'
+                            : ''
+                        }}
+                    >
+                        Féminin
+                    </option>
+
+                    <option
+                        value="non_binary"
+                        {{ filters.gender == 'non_binary'
+                            ? 'selected'
+                            : ''
+                        }}
+                    >
+                        Non-binaire
+                    </option>
+                </select>
+            </div>
+
+            <div class="character-filter-field">
+                <label for="character-filter-created-after">
+                    Créé après
+                </label>
+
+                <input
+                    id="character-filter-created-after"
+                    type="date"
+                    name="created_after"
+                    value="{{ filters.createdAfter }}"
+                >
+            </div>
+
+            <div class="character-filter-field">
+                <label for="character-filter-created-before">
+                    Créé avant
+                </label>
+
+                <input
+                    id="character-filter-created-before"
+                    type="date"
+                    name="created_before"
+                    value="{{ filters.createdBefore }}"
+                >
+            </div>
+
+            <div class="character-filter-field character-filter-search">
+                <label for="character-filter-creator">
+                    Pseudo créateur
+                </label>
+
+                <div class="character-filter-search-wrapper">
+                    <i class="bi bi-search"></i>
+
+                    <input
+                        id="character-filter-creator"
+                        type="search"
+                        name="creator"
+                        value="{{ filters.creator }}"
+                        placeholder="Rechercher par pseudo..."
+                    >
+                </div>
+            </div>
+
+            <button
+                type="submit"
+                class="character-filter-submit"
+            >
+                <i class="bi bi-funnel"></i>
+                Filtrer
+            </button>
+
+            <a
+                href="{{ path('app_character_index') }}"
+                class="character-filter-reset"
+            >
+                <i class="bi bi-x-lg"></i>
+                Réinitialiser
+            </a>
+        </form>
+
+        {% if characters is empty %}
+            <div class="character-library-empty">
+                <i class="bi bi-person-x"></i>
+
+                <h2>Aucun personnage trouvé</h2>
+
+                <p>
+                    Aucun personnage ne correspond aux filtres
+                    sélectionnés.
+                </p>
+            </div>
+        {% else %}
+            <div class="character-library-grid">
+                {% for character in characters %}
+                    <article class="public-character-card">
+                        <a
+                            href="{{ path('app_character_show', {
+                                id: character.id
+                            }) }}"
+                            class="public-character-card-link"
+                        >
+                            <div class="public-character-card-image">
+                                <img
+                                    src="{{ path('app_character_image', {
+                                        id: character.id,
+                                        v: character.updatedAt
+                                            ? character.updatedAt.timestamp
+                                            : character.createdAt.timestamp
+                                    }) }}"
+                                    alt="Personnage {{ character.name }}"
+                                    loading="lazy"
+                                >
+                            </div>
+
+                            <div class="public-character-card-content">
+                                <strong class="public-character-card-name">
+                                    {{ character.name }}
+                                </strong>
+
+                                <span class="public-character-card-creator">
+                                    par {{ character.owner.username }}
+                                </span>
+
+                                <div class="public-character-card-meta">
+                                    <span
+                                        class="public-character-gender public-character-gender-{{ character.gender }}"
+                                    >
+                                       {{ genderLabels[character.gender] ?? character.gender }}
+                                    </span>
+
+                                    <time
+                                        datetime="{{ character.createdAt|date('Y-m-d') }}"
+                                    >
+                                        {{ character.createdAt|date('d/m/Y') }}
+                                    </time>
+                                </div>
+                            </div>
+                        </a>
+                    </article>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+    </div>
+</section>
 {% endblock %}

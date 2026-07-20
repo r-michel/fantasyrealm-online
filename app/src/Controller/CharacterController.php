@@ -16,11 +16,64 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class CharacterController extends AbstractController
 {
-    #[Route('/characters', name: 'app_character_index')]
-    public function index(): Response
-    {
+    #[Route('/characters', name: 'app_character_index', methods: ['GET'])]
+        public function index(
+        Request $request,
+        CharacterRepository $characterRepository,
+    ): Response {
+        $gender = trim($request->query->getString('gender'));
+        $creatorPseudo = trim(
+            $request->query->getString('creator')
+        );
+
+        $createdAfter = $this->createDateFromQuery(
+            $request->query->getString('created_after'),
+        );
+
+        $createdBefore = $this->createDateFromQuery(
+            $request->query->getString('created_before'),
+        );
+
+        $characters = $characterRepository->findPublicCharacters(
+            gender: $gender !== '' ? $gender : null,
+            createdAfter: $createdAfter,
+            createdBefore: $createdBefore,
+            creatorPseudo: $creatorPseudo !== ''
+                ? $creatorPseudo
+                : null,
+        );
+
         return $this->render('character/index.html.twig', [
-            'controller_name' => 'CharacterController',
+            'characters' => $characters,
+            'filters' => [
+                'gender' => $gender,
+                'createdAfter' => $request->query->getString(
+                    'created_after',
+                ),
+                'createdBefore' => $request->query->getString(
+                    'created_before',
+                ),
+                'creator' => $creatorPseudo,
+            ],
+        ]);
+    }
+
+    #[Route(
+        '/characters/{id}',
+        name: 'app_character_show',
+        methods: ['GET'],
+    )]
+    public function show(Character $character): Response
+    {
+        if (
+            !$character->isShared()
+            || !$character->isAuthorized()
+        ) {
+            throw $this->createNotFoundException();
+        }
+
+        return $this->render('character/show.html.twig', [
+            'character' => $character,
         ]);
     }
 
@@ -439,5 +492,20 @@ final class CharacterController extends AbstractController
         }
 
         return $candidate;
+    }
+
+    private function createDateFromQuery(
+        string $value,
+    ): ?\DateTimeImmutable {
+        if ($value === '') {
+            return null;
+        }
+
+        $date = \DateTimeImmutable::createFromFormat(
+            '!Y-m-d',
+            $value,
+        );
+
+        return $date !== false ? $date : null;
     }
 }

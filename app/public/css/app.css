@@ -1643,3 +1643,208 @@ ul.form-errors {
         min-height: 320px;
     }
 }
+
+/* =========================
+   CHARACTERS LIST
+========================= */
+
+.character-library {
+    min-height: 100vh;
+}
+
+.character-library-header {
+    margin-bottom: 2rem;
+}
+
+.character-library-title {
+    margin-bottom: 0.5rem;
+}
+
+.character-library-description {
+    margin: 0;
+    color: var(--color-text-muted);
+}
+
+.character-library-filters {
+    display: grid;
+    grid-template-columns:
+        minmax(110px, 0.7fr)
+        minmax(135px, 0.85fr)
+        minmax(135px, 0.85fr)
+        minmax(250px, 3fr)
+        auto
+        auto;
+    gap: 1rem;
+    align-items: end;
+    margin-bottom: 2rem;
+    padding: 1.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    background: var(--color-surface);
+}
+
+.character-filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.character-filter-field label {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.character-filter-field select,
+.character-filter-field input {
+    width: 100%;
+    height: 42px;
+    padding: 0 0.8rem;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    color: var(--color-text);
+    background: transparent;
+}
+
+.character-filter-search-wrapper {
+    position: relative;
+}
+
+.character-filter-search-wrapper i {
+    position: absolute;
+    top: 50%;
+    left: 0.85rem;
+    transform: translateY(-50%);
+    color: var(--color-text-muted);
+    pointer-events: none;
+}
+
+.character-filter-search-wrapper input {
+    padding-left: 2.4rem;
+}
+
+.character-filter-submit,
+.character-filter-reset {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    min-height: 42px;
+    padding: 0 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    white-space: nowrap;
+}
+
+.character-filter-reset {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    background: var(--color-surface-secondary);
+}
+
+.character-library-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fill, minmax(210px, 1fr));
+    gap: 1.25rem;
+}
+
+.public-character-card {
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    background: var(--color-surface);
+    transition:
+        transform 150ms ease,
+        border-color 150ms ease;
+}
+
+.public-character-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-primary);
+}
+
+.public-character-card-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+}
+
+.public-character-card-image {
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--color-background);
+}
+
+.public-character-card-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.public-character-card-content {
+    padding: 0.9rem;
+}
+
+.public-character-card-name {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.public-character-card-creator {
+    display: block;
+    margin-bottom: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.public-character-card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+.public-character-gender {
+    font-weight: 600;
+}
+
+.character-library-empty {
+    padding: 4rem 1.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    text-align: center;
+    background: var(--color-surface);
+}
+
+.character-library-empty i {
+    display: block;
+    margin-bottom: 1rem;
+    font-size: 2rem;
+}
+
+@media (max-width: 1100px) {
+    .character-library-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .character-filter-search {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 600px) {
+    .character-library-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .character-filter-search {
+        grid-column: auto;
+    }
+
+    .character-library-grid {
+        grid-template-columns: 1fr;
+    }
+}

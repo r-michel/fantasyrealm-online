@@ -16,28 +16,58 @@ class CharacterRepository extends ServiceEntityRepository
         parent::__construct($registry, Character::class);
     }
 
-    //    /**
-    //     * @return Character[] Returns an array of Character objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('c.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * @return Character[]
+     */
+    public function findPublicCharacters(
+        ?string $gender = null,
+        ?\DateTimeImmutable $createdAfter = null,
+        ?\DateTimeImmutable $createdBefore = null,
+        ?string $creatorPseudo = null,
+    ): array {
+        $queryBuilder = $this->createQueryBuilder('character')
+            ->innerJoin('character.owner', 'owner')
+            ->addSelect('owner')
+            ->andWhere('character.shared = :shared')
+            ->andWhere('character.authorized = :authorized')
+            ->setParameter('shared', true)
+            ->setParameter('authorized', true)
+            ->orderBy('character.createdAt', 'DESC');
 
-    //    public function findOneBySomeField($value): ?Character
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        if ($gender !== null && $gender !== '') {
+            $queryBuilder
+                ->andWhere('character.gender = :gender')
+                ->setParameter('gender', $gender);
+        }
+
+        if ($createdAfter !== null) {
+            $queryBuilder
+                ->andWhere('character.createdAt >= :createdAfter')
+                ->setParameter('createdAfter', $createdAfter);
+        }
+
+        if ($createdBefore !== null) {
+            $queryBuilder
+                ->andWhere('character.createdAt <= :createdBefore')
+                ->setParameter(
+                    'createdBefore',
+                    $createdBefore->setTime(23, 59, 59),
+                );
+        }
+
+        if ($creatorPseudo !== null && $creatorPseudo !== '') {
+            $queryBuilder
+                ->andWhere(
+                    'LOWER(owner.username) LIKE LOWER(:creatorPseudo)'
+                )
+                ->setParameter(
+                    'creatorPseudo',
+                    '%' . trim($creatorPseudo) . '%',
+                );
+        }
+
+        return $queryBuilder
+            ->getQuery()
+            ->getResult();
+    }
 }

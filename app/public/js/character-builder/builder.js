@@ -223,25 +223,22 @@ class CharacterBuilder {
 
         equipmentInputs.forEach((input) => {
             input.addEventListener('change', () => {
-                if (!input.checked) {
-                    return;
-                }
+                if (input.checked) {
+                    const selectedCategory =
+                        input.dataset.categoryCode;
 
-                const selectedCategory =
-                    input.dataset.categoryCode;
-
-                if (!selectedCategory) {
-                    return;
-                }
-
-                equipmentInputs.forEach((otherInput) => {
-                    if (
-                        otherInput !== input
-                        && otherInput.dataset.categoryCode === selectedCategory
-                    ) {
-                        otherInput.checked = false;
+                    if (selectedCategory) {
+                        equipmentInputs.forEach((otherInput) => {
+                            if (
+                                otherInput !== input
+                                && otherInput.dataset.categoryCode
+                                    === selectedCategory
+                            ) {
+                                otherInput.checked = false;
+                            }
+                        });
                     }
-                });
+                }
 
                 this.updatePreview().catch((error) => {
                     console.error(

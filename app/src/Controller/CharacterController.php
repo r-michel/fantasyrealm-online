@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Character;
 use App\Entity\User;
 use App\Form\CharacterType;
+use App\Repository\CharacterRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -80,17 +81,81 @@ final class CharacterController extends AbstractController
         ]);
     }
 
-    #[Route('/character/{id}/edit', name: 'app_character_edit', methods: ['GET', 'POST'])]
+    #[Route(
+        '/character/{id}/edit',
+        name: 'app_character_edit',
+        methods: ['GET', 'POST'],
+    )]
     #[IsGranted('ROLE_USER')]
-    public function edit(Character $character): Response
-    {
+    public function edit(
+        Character $character,
+        Request $request,
+        EntityManagerInterface $entityManager,
+    ): Response {
         if ($character->getOwner() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
         }
-        // TODO : afficher et traiter le formulaire de modification.
+
+        $originalName = $character->getName();
+
+        $form = $this->createForm(
+            CharacterType::class,
+            $character,
+        );
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            if ($this->hasDuplicateEquipmentCategories($character)) {
+                $this->addFlash(
+                    'danger',
+                    'Vous ne pouvez sélectionner qu’un équipement par catégorie.',
+                );
+
+                return $this->render('character/edit.html.twig', [
+                    'character' => $character,
+                    'characterForm' => $form,
+                ]);
+            }
+
+            $generatedImage = $form
+                ->get('generatedImage')
+                ->getData();
+
+            if (is_string($generatedImage) && $generatedImage !== '') {
+                $character->setImage(
+                    $this->decodeGeneratedImage($generatedImage),
+                );
+            }
+
+            $nameHasChanged = $originalName !== $character->getName();
+
+            if ($nameHasChanged) {
+                $character->setAuthorized(false);
+            }
+
+            $character->setUpdatedAt(new \DateTimeImmutable());
+
+            $entityManager->flush();
+
+            $message = $nameHasChanged
+                ? sprintf(
+                    'Le personnage « %s » a été modifié et son nouveau nom doit être validé.',
+                    $character->getName(),
+                )
+                : sprintf(
+                    'Le personnage « %s » a été modifié.',
+                    $character->getName(),
+                );
+
+            $this->addFlash('success', $message);
+
+            return $this->redirectToRoute('app_account');
+        }
 
         return $this->render('character/edit.html.twig', [
             'character' => $character,
+            'characterForm' => $form,
         ]);
     }
 
@@ -116,12 +181,74 @@ final class CharacterController extends AbstractController
         methods: ['POST']
     )]
     #[IsGranted('ROLE_USER')]
-    public function duplicate(Character $character): RedirectResponse
-    {
+    public function duplicate(
+        Character $character,
+        Request $request,
+        CharacterRepository $characterRepository,
+        EntityManagerInterface $entityManager,
+    ): RedirectResponse {
         if ($character->getOwner() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
         }
-        // TODO : dupliquer le personnage et ses relations utiles.
+
+        if (!$this->isCsrfTokenValid(
+            'duplicate-character-' . $character->getId(),
+            $request->request->getString('_token'),
+        )) {
+            throw $this->createAccessDeniedException(
+                'Le jeton CSRF est invalide.',
+            );
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $duplicate = new Character();
+
+        $duplicate
+            ->setName(
+                $this->generateUniqueDuplicateName(
+                    $character->getName(),
+                    $characterRepository,
+                ),
+            )
+            ->setGender($character->getGender())
+            ->setSkinColor($character->getSkinColor())
+            ->setHairColor($character->getHairColor())
+            ->setEyeColor($character->getEyeColor())
+            ->setEyeShape($character->getEyeShape())
+            ->setNoseShape($character->getNoseShape())
+            ->setMouthShape($character->getMouthShape())
+            ->setOwner($user)
+            ->setShared(false)
+            ->setAuthorized(false)
+            ->setCreatedAt(new \DateTimeImmutable());
+
+        $image = $character->getImage();
+
+        if (is_resource($image)) {
+            rewind($image);
+            $image = stream_get_contents($image);
+        }
+
+        if (is_string($image) && $image !== '') {
+            $duplicate->setImage($image);
+        }
+
+        foreach ($character->getEquipment() as $equipment) {
+            $duplicate->addEquipment($equipment);
+        }
+
+        $entityManager->persist($duplicate);
+        $entityManager->flush();
+
+        $this->addFlash(
+            'success',
+            sprintf(
+                'Le personnage « %s » a été dupliqué.',
+                $duplicate->getName(),
+            ),
+        );
 
         return $this->redirectToRoute('app_account');
     }
@@ -222,5 +349,28 @@ final class CharacterController extends AbstractController
         }
 
         return false;
+    }
+
+    private function generateUniqueDuplicateName(
+        string $originalName,
+        CharacterRepository $characterRepository,
+    ): string {
+        $baseName = $originalName . ' - copie';
+        $candidate = $baseName;
+        $number = 2;
+
+        while ($characterRepository->findOneBy([
+            'name' => $candidate,
+        ]) !== null) {
+            $candidate = sprintf(
+                '%s %d',
+                $baseName,
+                $number,
+            );
+
+            ++$number;
+        }
+
+        return $candidate;
     }
 }

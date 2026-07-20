@@ -56,7 +56,8 @@
                                 {% if character.image %}
                                     <img
                                         src="{{ path('app_character_image', {
-                                            id: character.id
+                                            id: character.id,
+                                            v: character.updatedAt ? character.updatedAt.timestamp : character.createdAt.timestamp
                                         }) }}"
                                         alt="Portrait de {{ character.name }}"
                                         class="account-character-image"
@@ -111,34 +112,49 @@
 
                         <div class="character-account-actions">
 
-                            {% if character.authorized %}
-                                <a
-                                    href="{{ path('app_character_edit', { id: character.id }) }}"
-                                    class="character-action"
-                                >
-                                    Modifier
-                                </a>
+                            <a
+                                href="{{ path('app_character_edit', {
+                                    id: character.id
+                                }) }}"
+                                class="character-action-button"
+                            >
+                                <i class="bi bi-pencil"></i>
+                                Modifier
+                            </a>
 
+                            {% if character.authorized %}
                                 <form
                                     method="post"
                                     action="{{ path('app_character_toggle_share', {
                                         id: character.id
                                     }) }}"
                                 >
-                                    <button type="submit" class="character-action">
-                                        {{ character.shared ? 'Retirer du partage' : 'Partager' }}
+                                    <button
+                                        type="submit"
+                                        class="character-action-button character-action-deploy"
+                                    >
+                                        <i class="bi bi-globe2"></i>
+
+                                        {{ character.shared
+                                            ? 'Retirer du partage'
+                                            : 'Partager'
+                                        }}
                                     </button>
                                 </form>
                             {% endif %}
 
                             <form
                                 method="post"
-                                action="{{ path('app_character_duplicate', {id: character.id}) }}"
+                                action="{{ path('app_character_duplicate', {
+                                    id: character.id
+                                }) }}"
                             >
                                 <input
                                     type="hidden"
                                     name="_token"
-                                    value="{{ csrf_token('duplicate-' ~ character.id) }}"
+                                    value="{{ csrf_token(
+                                        'duplicate-character-' ~ character.id
+                                    ) }}"
                                 >
 
                                 <button

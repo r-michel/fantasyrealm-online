@@ -1,6 +1,8 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Créer un personnage{% endblock %}
+{% block title %}
+    Modifier {{ character.name }}
+{% endblock %}
 
 {% block body %}
 <section class="character-builder">
@@ -15,15 +17,15 @@
         </a>
 
         <h1 class="builder-page-title">
-            Créer un personnage
+            Modifier {{ character.name }}
         </h1>
 
         {% include 'character/_form.html.twig' with {
             characterForm: characterForm,
-            submitLabel: 'Soumettre à validation',
-            submitIcon: 'bi-stars',
+            submitLabel: 'Enregistrer les modifications',
+            submitIcon: 'bi-check-lg',
             submitHelp:
-                'Le nom sera validé par notre équipe. Vous pourrez modifier l’équipement à tout moment.'
+                'Toute modification du personnage nécessitera une nouvelle validation.'
         } only %}
 
     </div>

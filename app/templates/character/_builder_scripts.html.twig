@@ -1,0 +1,109 @@
+<script
+    type="module"
+    src="{{ asset('js/character-builder/builder.js') }}"
+></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const tabs = document.querySelectorAll('.equipment-tab');
+        const options = document.querySelectorAll('.equipment-option');
+
+        tabs.forEach((tab) => {
+            tab.addEventListener('click', () => {
+                const selectedCategory = tab.dataset.category;
+
+                tabs.forEach((item) => {
+                    const isActive = item === tab;
+
+                    item.classList.toggle('active', isActive);
+                    item.setAttribute(
+                        'aria-selected',
+                        isActive ? 'true' : 'false'
+                    );
+                });
+
+                options.forEach((option) => {
+                    option.hidden =
+                        option.dataset.category !== selectedCategory;
+                });
+            });
+        });
+
+        const nameInput = document.querySelector(
+            '#{{ characterForm.name.vars.id }}'
+        );
+
+        const previewName = document.querySelector('#preview-name');
+
+        const updateName = () => {
+            if (!nameInput || !previewName) {
+                return;
+            }
+
+            previewName.textContent =
+                nameInput.value.trim() || 'Personnage';
+        };
+
+        nameInput?.addEventListener('input', updateName);
+        updateName();
+
+        const genderInputs = document.querySelectorAll(
+            'input[name="{{ characterForm.gender.vars.full_name }}"]'
+        );
+
+        const previewGender =
+            document.querySelector('#preview-gender');
+
+        const genderLabels = {
+            male: 'Masculin',
+            female: 'Féminin',
+            non_binary: 'Non-binaire'
+        };
+
+        const updateGender = () => {
+            const checkedGender = [...genderInputs].find(
+                (input) => input.checked
+            );
+
+            if (checkedGender && previewGender) {
+                previewGender.textContent =
+                    genderLabels[checkedGender.value]
+                    ?? checkedGender.value;
+            }
+        };
+
+        genderInputs.forEach((input) => {
+            input.addEventListener('change', updateGender);
+        });
+
+        updateGender();
+
+        const equipmentInputs = document.querySelectorAll(
+            'input[name="{{ characterForm.equipment.vars.full_name }}[]"]'
+        );
+
+        const previewEquipmentCount = document.querySelector(
+            '#preview-equipment-count'
+        );
+
+        const updateEquipmentCount = () => {
+            const count = [...equipmentInputs].filter(
+                (input) => input.checked
+            ).length;
+
+            if (previewEquipmentCount) {
+                previewEquipmentCount.textContent =
+                    `${count} équip.`;
+            }
+        };
+
+        equipmentInputs.forEach((input) => {
+            input.addEventListener(
+                'change',
+                updateEquipmentCount
+            );
+        });
+
+        updateEquipmentCount();
+    });
+</script>

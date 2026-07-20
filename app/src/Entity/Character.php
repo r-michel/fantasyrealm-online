@@ -17,6 +17,9 @@ class Character
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(length: 200, unique: true)]
+    private ?string $publicId = null;
+
     #[ORM\Column(length: 50, unique: true)]
     private ?string $name = null;
 
@@ -81,6 +84,18 @@ class Character
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getPublicId(): ?string
+    {
+        return $this->publicId;
+    }
+
+    public function setPublicId(string $publicId): static
+    {
+        $this->publicId = $publicId;
+
+        return $this;
     }
 
     public function getName(): ?string

@@ -6,7 +6,9 @@ use App\Entity\Character;
 use App\Entity\User;
 use App\Form\CharacterType;
 use App\Repository\CharacterRepository;
+use App\Service\CharacterPublicIdGenerator;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -59,12 +61,17 @@ final class CharacterController extends AbstractController
     }
 
     #[Route(
-        '/characters/{id}',
+        '/characters/{publicId}',
         name: 'app_character_show',
+        requirements: [
+            'publicId' => '[a-z0-9-]+',
+        ],
         methods: ['GET'],
     )]
-    public function show(Character $character): Response
-    {
+    public function show(
+        #[MapEntity(mapping: ['publicId' => 'publicId'])]
+        Character $character,
+    ): Response {
         if (
             !$character->isShared()
             || !$character->isAuthorized()
@@ -82,6 +89,7 @@ final class CharacterController extends AbstractController
     public function new(
         Request $request,
         EntityManagerInterface $entityManager,
+        CharacterPublicIdGenerator $publicIdGenerator,
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
@@ -115,6 +123,12 @@ final class CharacterController extends AbstractController
             if (is_string($generatedImage) && $generatedImage !== '') {
                 $character->setImage(
                     $this->decodeGeneratedImage($generatedImage)
+                );
+            }
+
+            if ($character->getPublicId() === null) {
+                $character->setPublicId(
+                    $publicIdGenerator->generate($character->getName()),
                 );
             }
 
@@ -272,6 +286,7 @@ final class CharacterController extends AbstractController
         Request $request,
         CharacterRepository $characterRepository,
         EntityManagerInterface $entityManager,
+        CharacterPublicIdGenerator $publicIdGenerator,
     ): RedirectResponse {
         if ($character->getOwner() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
@@ -324,6 +339,12 @@ final class CharacterController extends AbstractController
         foreach ($character->getEquipment() as $equipment) {
             $duplicate->addEquipment($equipment);
         }
+
+        $duplicate->setPublicId(
+            $publicIdGenerator->generate(
+                $duplicate->getName(),
+            ),
+        );
 
         $entityManager->persist($duplicate);
         $entityManager->flush();

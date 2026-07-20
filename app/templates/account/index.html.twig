@@ -53,13 +53,16 @@
                         <div class="character-account-main">
 
                             <div class="character-account-avatar">
-                                {% if character.imageFilename %}
+                                {% if character.image %}
                                     <img
-                                        src="{{ asset('uploads/characters/' ~ character.imageFilename) }}"
+                                        src="{{ path('app_character_image', {
+                                            id: character.id
+                                        }) }}"
                                         alt="Portrait de {{ character.name }}"
+                                        class="account-character-image"
                                     >
                                 {% else %}
-                                    <div class="character-avatar-placeholder">
+                                    <div class="account-character-image-placeholder">
                                         <i class="bi bi-person"></i>
                                     </div>
                                 {% endif %}
@@ -71,20 +74,15 @@
                                         {{ character.name }}
                                     </h2>
 
-                                    {% if character.status == 'approved' %}
+                                    {% if character.authorized %}
                                         <span class="character-status character-status-approved">
                                             <i class="bi bi-check-circle"></i>
                                             Approuvé
                                         </span>
-                                    {% elseif character.status == 'pending' %}
+                                    {% else %}
                                         <span class="character-status character-status-pending">
                                             <i class="bi bi-clock"></i>
                                             En attente
-                                        </span>
-                                    {% else %}
-                                        <span class="character-status character-status-draft">
-                                            <i class="bi bi-pencil"></i>
-                                            Brouillon
                                         </span>
                                     {% endif %}
 
@@ -97,12 +95,12 @@
                                 </div>
 
                                 <p class="character-account-meta">
-                                    {{ character.gender }}
+                                    {{ ('character.gender.' ~ character.gender)|trans }}
                                     <span aria-hidden="true">·</span>
                                     Créé le {{ character.createdAt|date('d/m/Y') }}
                                 </p>
 
-                                {% if character.status == 'pending' %}
+                                {% if character.authorized == false %}
                                     <p class="character-account-notice">
                                         <i class="bi bi-info-circle"></i>
                                         En attente de validation par un membre de notre équipe.
@@ -113,38 +111,22 @@
 
                         <div class="character-account-actions">
 
-                            {% if character.status != 'pending' %}
+                            {% if character.authorized %}
                                 <a
-                                    href="{{ path('app_character_edit', {id: character.id}) }}"
-                                    class="character-action-button"
+                                    href="{{ path('app_character_edit', { id: character.id }) }}"
+                                    class="character-action"
                                 >
-                                    <i class="bi bi-pencil"></i>
                                     Modifier
                                 </a>
-                            {% endif %}
 
-                            {% if character.status == 'approved' %}
                                 <form
                                     method="post"
-                                    action="{{ path('app_character_toggle_share', {id: character.id}) }}"
+                                    action="{{ path('app_character_toggle_share', {
+                                        id: character.id
+                                    }) }}"
                                 >
-                                    <input
-                                        type="hidden"
-                                        name="_token"
-                                        value="{{ csrf_token('toggle-share-' ~ character.id) }}"
-                                    >
-
-                                    <button
-                                        type="submit"
-                                        class="character-action-button character-action-deploy"
-                                    >
-                                        <i class="bi bi-globe2"></i>
-
-                                        {% if character.shared %}
-                                            Retirer du partage
-                                        {% else %}
-                                            Déployer
-                                        {% endif %}
+                                    <button type="submit" class="character-action">
+                                        {{ character.shared ? 'Retirer du partage' : 'Partager' }}
                                     </button>
                                 </form>
                             {% endif %}

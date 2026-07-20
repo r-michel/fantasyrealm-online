@@ -138,6 +138,31 @@ final class CharacterController extends AbstractController
         return $this->redirectToRoute('app_account');
     }
 
+    #[Route(
+        '/character/{id}/image',
+        name: 'app_character_image',
+        methods: ['GET'],
+    )]
+    public function image(Character $character): Response
+    {
+        $image = $character->getImage();
+
+        if (is_resource($image)) {
+            $image = stream_get_contents($image);
+        }
+
+        if (!is_string($image) || $image === '') {
+            throw $this->createNotFoundException(
+                'Ce personnage ne possède pas d’image.',
+            );
+        }
+
+        return new Response($image, Response::HTTP_OK, [
+            'Content-Type' => 'image/png',
+            'Cache-Control' => 'private, max-age=3600',
+        ]);
+    }
+
     private function decodeGeneratedImage(string $dataUrl): string
     {
         if (!preg_match(

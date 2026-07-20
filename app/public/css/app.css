@@ -1056,6 +1056,27 @@ ul.form-errors {
     margin-bottom: 2rem;
 }
 
+.account-character-image {
+    display: block;
+    width: 80px;
+    height: 100px;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.account-character-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 100px;
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    font-size: 2rem;
+    color: var(--color-text-muted);
+    background: var(--color-bg-soft);
+}
+
 /* Responsive */
 
 @media (max-width: 767.98px) {

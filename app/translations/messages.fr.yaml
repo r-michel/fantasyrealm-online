@@ -1,0 +1,5 @@
+character:
+    gender:
+        male: Homme
+        female: Femme
+        non_binary: Non-binaire

@@ -1,0 +1,219 @@
+{{ form_start(characterForm, {
+    attr: {
+        id: 'character-builder-form'
+    }
+}) }}
+
+    <div class="row g-4 align-items-start">
+
+        <div class="col-lg-8">
+
+            {# IDENTITÉ #}
+            <section class="builder-panel">
+                <h2 class="builder-section-title">
+                    Identité
+                </h2>
+
+                <div class="builder-field-group">
+                    {{ form_label(characterForm.name, null, {
+                        label_attr: {
+                            class: 'builder-label'
+                        }
+                    }) }}
+
+                    {{ form_widget(characterForm.name, {
+                        attr: {
+                            class: 'builder-text-input'
+                        }
+                    }) }}
+
+                    {{ form_errors(characterForm.name) }}
+                </div>
+
+                <div class="builder-field-group mb-0">
+                    {{ form_label(characterForm.gender, null, {
+                        label_attr: {
+                            class: 'builder-label'
+                        }
+                    }) }}
+
+                    <div class="builder-choice-buttons">
+                        {% for choice in characterForm.gender %}
+                            <div class="builder-choice">
+                                {{ form_widget(choice) }}
+                                {{ form_label(choice) }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {{ form_errors(characterForm.gender) }}
+                </div>
+            </section>
+
+            {# APPARENCE #}
+            <section class="builder-panel">
+                <h2 class="builder-section-title">
+                    Apparence
+                </h2>
+
+                {% include 'character/_choice_group.html.twig' with {
+                    field: characterForm.skinColor,
+                    className: 'builder-color-options builder-skin-options'
+                } %}
+
+                {% include 'character/_choice_group.html.twig' with {
+                    field: characterForm.hairColor,
+                    className: 'builder-color-options builder-hair-options'
+                } %}
+
+                {% include 'character/_choice_group.html.twig' with {
+                    field: characterForm.eyeColor,
+                    className: 'builder-color-options builder-eye-options'
+                } %}
+
+                {% include 'character/_choice_group.html.twig' with {
+                    field: characterForm.eyeShape,
+                    className: 'builder-choice-buttons'
+                } %}
+
+                {% include 'character/_choice_group.html.twig' with {
+                    field: characterForm.noseShape,
+                    className: 'builder-choice-buttons'
+                } %}
+
+                {% include 'character/_choice_group.html.twig' with {
+                    field: characterForm.mouthShape,
+                    className: 'builder-choice-buttons'
+                } %}
+            </section>
+
+            {# ÉQUIPEMENT #}
+            <section class="builder-panel">
+                <h2 class="builder-section-title">
+                    Équipement
+                </h2>
+
+                {% set categories = {} %}
+
+                {% for equipmentChoice in characterForm.equipment %}
+                    {% set categoryId = equipmentChoice.vars.attr['data-category-id'] %}
+                    {% set categoryName = equipmentChoice.vars.attr['data-category-name'] %}
+                    {% set categoryKey = 'category_' ~ categoryId %}
+
+                    {% set categories = categories|merge({
+                        (categoryKey): {
+                            id: categoryId,
+                            name: categoryName
+                        }
+                    }) %}
+                {% endfor %}
+
+                {% if categories is empty %}
+                    <p class="builder-empty-message">
+                        Aucun équipement n’est actuellement disponible.
+                    </p>
+                {% else %}
+                    <div class="equipment-tabs" role="tablist">
+                        {% for category in categories %}
+                            <button
+                                type="button"
+                                class="equipment-tab {{ loop.first ? 'active' : '' }}"
+                                data-category="{{ category.id }}"
+                                role="tab"
+                                aria-selected="{{ loop.first ? 'true' : 'false' }}"
+                            >
+                                {{ category.name }}
+                            </button>
+                        {% endfor %}
+                    </div>
+
+                    {% set firstCategory = categories|first %}
+
+                    <div class="equipment-options">
+                        {% for equipmentChoice in characterForm.equipment %}
+                            {% set categoryId = equipmentChoice.vars.attr['data-category-id'] %}
+
+                            <div
+                                class="equipment-option"
+                                data-category="{{ categoryId }}"
+                                {% if categoryId != firstCategory.id %}
+                                    hidden
+                                {% endif %}
+                            >
+                                {{ form_widget(equipmentChoice) }}
+                                {{ form_label(equipmentChoice) }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {{ form_errors(characterForm.equipment) }}
+            </section>
+
+            <button type="submit" class="btn builder-submit">
+                <i class="bi {{ submitIcon|default('bi-stars') }}"></i>
+                {{ submitLabel|default('Enregistrer') }}
+            </button>
+
+            <p class="builder-submit-help">
+                {{ submitHelp|default(
+                    'Vos modifications seront enregistrées.'
+                ) }}
+            </p>
+
+        </div>
+
+        {# PRÉVISUALISATION #}
+        <div class="col-lg-4 builder-preview-column">
+            <aside class="character-preview-wrapper">
+
+                <p class="builder-preview-title">
+                    Prévisualisation
+                </p>
+
+                <div class="character-preview">
+
+                    <div class="character-preview-stage">
+                        <canvas
+                            id="character-preview-canvas"
+                            class="character-preview-canvas"
+                            width="320"
+                            height="380"
+                            aria-label="Prévisualisation du personnage"
+                        ></canvas>
+                    </div>
+
+                    {{ form_widget(characterForm.generatedImage, {
+                        attr: {
+                            class: 'd-none'
+                        }
+                    }) }}
+
+                    <div class="character-preview-caption">
+                        <strong id="preview-name">
+                            {{ characterForm.name.vars.value
+                                ?: 'Personnage'
+                            }}
+                        </strong>
+
+                        <span>
+                            <span id="preview-gender">
+                                Genre non défini
+                            </span>
+
+                            <span aria-hidden="true">·</span>
+
+                            <span id="preview-equipment-count">
+                                0 équip.
+                            </span>
+                        </span>
+                    </div>
+
+                </div>
+
+            </aside>
+        </div>
+
+    </div>
+
+{{ form_end(characterForm) }}

@@ -17,7 +17,7 @@ class Character
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(length: 50, unique: true)]
     private ?string $name = null;
 
     #[ORM\Column(length: 50)]
@@ -25,6 +25,9 @@ class Character
 
     #[ORM\Column(length: 50)]
     private ?string $skinColor = null;
+
+    #[ORM\Column(length: 50)]
+    private ?string $hairColor = null;
 
     #[ORM\Column(length: 50)]
     private ?string $eyeColor = null;
@@ -39,12 +42,12 @@ class Character
     private ?string $mouthShape = null;
 
     #[ORM\Column]
-    private ?bool $shared = null;
+    private ?bool $shared = false;
 
     #[ORM\Column]
-    private ?bool $authorized = null;
+    private ?bool $authorized = false;
 
-    #[ORM\Column(type: Types::BLOB)]
+    #[ORM\Column(type: Types::BLOB, nullable: true)]
     private mixed $image = null;
 
     #[ORM\ManyToOne(inversedBy: 'characters')]
@@ -112,6 +115,18 @@ class Character
     public function setSkinColor(string $skinColor): static
     {
         $this->skinColor = $skinColor;
+
+        return $this;
+    }
+
+    public function getHairColor(): ?string
+    {
+        return $this->hairColor;
+    }
+
+    public function setHairColor(string $hairColor): static
+    {
+        $this->hairColor = $hairColor;
 
         return $this;
     }

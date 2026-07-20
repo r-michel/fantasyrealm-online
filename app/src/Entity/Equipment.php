@@ -20,9 +20,9 @@ class Equipment
     private ?string $name = null;
 
     #[ORM\Column]
-    private ?bool $active = null;
+    private ?bool $active = true;
 
-    #[ORM\Column(type: Types::BLOB)]
+    #[ORM\Column(type: Types::BLOB, nullable: true)]
     private mixed $image = null;
 
     #[ORM\Column]
@@ -145,5 +145,10 @@ class Equipment
         $this->onCharacter->removeElement($onCharacter);
 
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->name ?? '';
     }
 }

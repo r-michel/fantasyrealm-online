@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    Modifier {{ character.name }}
+{% endblock %}
+
+{% block body %}
+<section class="character-builder">
+    <div class="container py-5">
+
+        <a
+            href="{{ path('app_account') }}"
+            class="builder-back-link"
+        >
+            <i class="bi bi-chevron-left"></i>
+            Mon espace
+        </a>
+
+        <h1 class="builder-page-title">
+            Modifier {{ character.name }}
+        </h1>
+
+        {% include 'character/_form.html.twig' with {
+            characterForm: characterForm,
+            submitLabel: 'Enregistrer les modifications',
+            submitIcon: 'bi-check-lg',
+            submitHelp:
+                'Toute modification du personnage nécessitera une nouvelle validation.'
+        } only %}
+
+    </div>
+</section>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {% include 'character/_builder_scripts.html.twig' with {
+        characterForm: characterForm
+    } only %}
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {{ character.name }} · Bibliothèque des personnages
+{% endblock %}
+
+{% block body %}
+    <main class="character-show">
+        <div class="character-show__container">
+            <a
+                href="{{ path('app_character_index') }}"
+                class="character-show__back"
+            >
+                <span aria-hidden="true">‹</span>
+                Retour à la bibliothèque
+            </a>
+
+            <div class="character-show__layout">
+                <aside class="character-show__sidebar">
+                    {% include 'character/_show/_preview.html.twig' %}
+                </aside>
+
+                <div class="character-show__content">
+                    {% include 'character/_show/_appearance.html.twig' %}
+                    {% include 'character/_show/_equipment.html.twig' %}
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}

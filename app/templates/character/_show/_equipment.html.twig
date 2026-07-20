@@ -1,0 +1,25 @@
+<section class="character-show-panel">
+    <h2 class="character-show-panel__title">
+        Équipement
+    </h2>
+
+    {% if character.equipment is empty %}
+        <p class="character-show-panel__empty">
+            Aucun équipement.
+        </p>
+    {% else %}
+        <div class="character-show-equipment">
+            {% for equipment in character.equipment %}
+                <div class="character-show-equipment__category">
+                    <h3>
+                        {{ equipment.category.name }}
+                    </h3>
+
+                    <span class="character-show-equipment__badge">
+                        {{ equipment.name }}
+                    </span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</section>

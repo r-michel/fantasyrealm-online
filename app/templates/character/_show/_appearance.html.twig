@@ -1,0 +1,42 @@
+<section class="character-show-panel">
+    <h2 class="character-show-panel__title">
+        Apparence
+    </h2>
+
+    <dl class="character-show-properties">
+        <div class="character-show-property">
+            <dt>Genre</dt>
+            <dd>{{ ('appearance.gender.' ~ character.gender)|trans }}</dd>
+        </div>
+
+        <div class="character-show-property">
+            <dt>Teinte de peau</dt>
+            <dd>{{ ('appearance.skinColor.' ~ character.skinColor)|trans }}</dd>
+        </div>
+
+        <div class="character-show-property">
+            <dt>Cheveux</dt>
+            <dd>{{ ('appearance.hairColor.' ~ character.hairColor)|trans }}</dd>
+        </div>
+
+        <div class="character-show-property">
+            <dt>Yeux</dt>
+            <dd>{{ ('appearance.eyeColor.' ~ character.eyeColor)|trans }}</dd>
+        </div>
+
+        <div class="character-show-property">
+            <dt>Forme des yeux</dt>
+            <dd>{{ ('appearance.eyeShape.' ~ character.eyeShape)|trans }}</dd>
+        </div>
+
+        <div class="character-show-property">
+            <dt>Nez</dt>
+            <dd>{{ ('appearance.noseShape.' ~ character.noseShape)|trans }}</dd>
+        </div>
+
+        <div class="character-show-property">
+            <dt>Bouche</dt>
+            <dd>{{ ('appearance.mouthShape.' ~ character.mouthShape)|trans }}</dd>
+        </div>
+    </dl>
+</section>

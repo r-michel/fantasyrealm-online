@@ -1,5 +1,46 @@
-character:
+appearance:
     gender:
         male: Homme
         female: Femme
-        non_binary: Non-binaire
+        non-binary: Non binaire
+
+    skinColor:
+        light: Claire
+        brown: Mate
+        dark: Foncée
+        green: Vert
+
+    hairColor:
+        black: Noir
+        brown: Brun
+        blond: Blond
+        orange: Roux
+        white: Blanc
+
+    eyeColor:
+        brown: Marron
+        blue: Bleu
+        green: Vert
+        amber: Ambre
+        purple: Violet
+        red: Rouge
+        yellow: Jaune
+        gray: Gris
+
+    eyeShape:
+        almond: En amande
+        round: Ronds
+        narrow: Petits
+        large: Grands
+
+    noseShape:
+        straight: Droit
+        upturned: À l'envers
+        small: Petit
+        wide: Large
+
+    mouthShape:
+        thin: Fine
+        full: Pulpeuse
+        smile: Souriante
+        neutral: Neutre

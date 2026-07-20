@@ -1,0 +1,43 @@
+<section class="character-show-preview">
+    <div class="character-show-preview__image-wrapper">
+        <img
+            src="{{ path('app_character_image', {
+                id: character.id,
+                v: character.updatedAt
+                    ? character.updatedAt.timestamp
+                    : character.createdAt.timestamp
+            }) }}"
+            alt="Aperçu de {{ character.name }}"
+            class="character-show-preview__image"
+        >
+
+        <div class="character-show-preview__overlay">
+            <h1 class="character-show-preview__name">
+                {{ character.name }}
+            </h1>
+
+            <p class="character-show-preview__summary">
+                {{ ('appearance.gender.' ~ character.gender)|trans }}
+                <span aria-hidden="true">·</span>
+                {{ character.equipment|length }}
+                équipement{{ character.equipment|length > 1 ? 's' : '' }}
+            </p>
+        </div>
+    </div>
+
+    <div class="character-show-identity">
+        <p class="character-show-identity__meta">
+            Créé par
+            <strong>
+                {{ character.owner.username }}
+            </strong>
+
+            {% if character.createdAt %}
+                <span aria-hidden="true">·</span>
+                <time datetime="{{ character.createdAt|date('Y-m-d') }}">
+                    {{ character.createdAt|date('d/m/Y') }}
+                </time>
+            {% endif %}
+        </p>
+    </div>
+</section>

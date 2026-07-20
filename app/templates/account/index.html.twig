@@ -122,26 +122,34 @@
                                 Modifier
                             </a>
 
-                            {% if character.authorized %}
-                                <form
-                                    method="post"
-                                    action="{{ path('app_character_toggle_share', {
-                                        id: character.id
-                                    }) }}"
+                            <form
+                                method="post"
+                                action="{{ path('app_character_share', {
+                                    id: character.id
+                                }) }}"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="_token"
+                                    value="{{ csrf_token('share' ~ character.id) }}"
                                 >
-                                    <button
-                                        type="submit"
-                                        class="character-action-button character-action-deploy"
-                                    >
-                                        <i class="bi bi-globe2"></i>
 
-                                        {{ character.shared
-                                            ? 'Retirer du partage'
-                                            : 'Partager'
-                                        }}
-                                    </button>
-                                </form>
-                            {% endif %}
+                                <button
+                                    type="submit"
+                                    class="character-action-button character-action-deploy text-nowrap"
+                                >
+                                    {% if character.shared %}
+                                        <i class="bi bi-eye-slash"></i>
+                                        Ne plus partager
+                                    {% elseif character.authorized %}
+                                        <i class="bi bi-share"></i>
+                                        Partager
+                                    {% else %}
+                                        <i class="bi bi-hourglass-split"></i>
+                                        Partager après validation
+                                    {% endif %}
+                                </button>
+                            </form>
 
                             <form
                                 method="post"

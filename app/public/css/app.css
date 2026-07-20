@@ -973,7 +973,7 @@ ul.form-errors {
     display: flex;
     flex-direction: column;
     gap: 0.55rem;
-    width: 120px;
+    width: 180px;
     flex-shrink: 0;
 }
 

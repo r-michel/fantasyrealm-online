@@ -160,17 +160,50 @@ final class CharacterController extends AbstractController
     }
 
     #[Route(
-        '/character/{id}/toggle-share',
-        name: 'app_character_toggle_share',
-        methods: ['POST']
+        '/character/{id}/share',
+        name: 'app_character_share',
+        methods: ['POST'],
     )]
-    #[IsGranted('ROLE_USER')]
-    public function toggleShare(Character $character): RedirectResponse
-    {
+    public function share(
+        Character $character,
+        Request $request,
+        EntityManagerInterface $entityManager,
+    ): RedirectResponse {
         if ($character->getOwner() !== $this->getUser()) {
-            throw $this->createAccessDeniedException();
+            throw $this->createAccessDeniedException(
+                'Vous ne pouvez pas modifier le partage de ce personnage.',
+            );
         }
-        // TODO : inverser l’état de partage du personnage.
+
+        $token = $request->request->getString('_token');
+
+        if (!$this->isCsrfTokenValid(
+            'share' . $character->getId(),
+            $token,
+        )) {
+            $this->addFlash(
+                'error',
+                'Le jeton de sécurité est invalide. Veuillez réessayer.',
+            );
+
+            return $this->redirectToRoute('app_account');
+        }
+
+        $character->setShared(!$character->isShared());
+
+        $entityManager->flush();
+
+        $message = $character->isShared()
+            ? sprintf(
+                'Le personnage « %s » est maintenant partagé.',
+                $character->getName(),
+            )
+            : sprintf(
+                'Le personnage « %s » n’est plus partagé.',
+                $character->getName(),
+            );
+
+        $this->addFlash('success', $message);
 
         return $this->redirectToRoute('app_account');
     }

@@ -253,14 +253,48 @@ final class CharacterController extends AbstractController
         return $this->redirectToRoute('app_account');
     }
 
-    #[Route('/character/{id}', name: 'app_character_delete', methods: ['POST'])]
-    #[IsGranted('ROLE_USER')]
-    public function delete(Character $character): RedirectResponse
-    {
+    #[Route(
+        '/character/{id}/delete',
+        name: 'app_character_delete',
+        methods: ['POST'],
+    )]
+    public function delete(
+        Character $character,
+        Request $request,
+        EntityManagerInterface $entityManager,
+    ): RedirectResponse {
         if ($character->getOwner() !== $this->getUser()) {
-            throw $this->createAccessDeniedException();
+            throw $this->createAccessDeniedException(
+                'Vous ne pouvez pas supprimer ce personnage.',
+            );
         }
-        // TODO : supprimer le personnage après vérification du token CSRF.
+
+        $token = $request->request->getString('_token');
+
+        if (!$this->isCsrfTokenValid(
+            'delete' . $character->getId(),
+            $token,
+        )) {
+            $this->addFlash(
+                'error',
+                'Le jeton de sécurité est invalide. Veuillez réessayer.',
+            );
+
+            return $this->redirectToRoute('app_account');
+        }
+
+        $characterName = $character->getName();
+
+        $entityManager->remove($character);
+        $entityManager->flush();
+
+        $this->addFlash(
+            'success',
+            sprintf(
+                'Le personnage « %s » a bien été supprimé.',
+                $characterName,
+            ),
+        );
 
         return $this->redirectToRoute('app_account');
     }

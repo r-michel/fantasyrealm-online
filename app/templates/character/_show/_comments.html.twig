@@ -1,0 +1,149 @@
+<section class="character-show-panel character-comments">
+    <h2 class="character-show-panel__title">
+        Avis ({{ publishedComments|length }})
+    </h2>
+
+    <div class="character-comments__list">
+        {% for comment in publishedComments %}
+            <article class="character-comment">
+                <header class="character-comment__header">
+                    <div class="character-comment__author-rating">
+                        <strong class="character-comment__author">
+                            {{ comment.owner.username }}
+                        </strong>
+
+                        <span
+                            class="character-comment__rating"
+                            aria-label="{{ comment.rate }} étoile{{ comment.rate > 1 ? 's' : '' }} sur 5"
+                        >
+                            {% for star in 1..5 %}
+                                <span
+                                    class="{{ star <= comment.rate
+                                        ? 'character-comment__star character-comment__star--active'
+                                        : 'character-comment__star'
+                                    }}"
+                                    aria-hidden="true"
+                                >
+                                    ★
+                                </span>
+                            {% endfor %}
+                        </span>
+                    </div>
+
+                    <time
+                        class="character-comment__date"
+                        datetime="{{ comment.createdAt|date('Y-m-d') }}"
+                    >
+                        {{ comment.createdAt|date('d/m/Y') }}
+                    </time>
+                </header>
+
+                <p class="character-comment__text">
+                    {{ comment.comment }}
+                </p>
+            </article>
+        {% else %}
+            <p class="character-comments__empty">
+                Aucun avis pour l’instant.
+            </p>
+        {% endfor %}
+    </div>
+
+    <div class="character-comments__action">
+        {% if not app.user %}
+            <p class="character-comments__message">
+                Connectez-vous pour laisser un avis
+            </p>
+
+            <a
+                href="{{ path('app_login') }}"
+                class="character-comments__login"
+            >
+                <span aria-hidden="true">♙</span>
+                Se connecter
+            </a>
+
+        {% elseif character.owner == app.user %}
+            <p class="character-comments__message">
+                C’est votre personnage – vous ne pouvez pas laisser un avis
+                sur votre propre création.
+            </p>
+
+        {% elseif currentUserComment %}
+            {% if currentUserComment.published %}
+                <p class="character-comments__message character-comments__message--success">
+                    Vous avez déjà publié un avis sur ce personnage.
+                </p>
+            {% else %}
+                <p class="character-comments__message character-comments__message--success">
+                    <span aria-hidden="true">✓</span>
+                    Vous avez déjà soumis un avis
+                    (en attente de validation).
+                </p>
+            {% endif %}
+
+        {% elseif commentForm %}
+            <div class="character-comment-form">
+                <h3 class="character-comment-form__title">
+                    Laisser un avis
+                </h3>
+
+                {{ form_start(commentForm, {
+                    attr: {
+                        class: 'character-comment-form__form'
+                    }
+                }) }}
+
+                    <div class="character-comment-form__rating">
+                        <span class="character-comment-form__label">
+                            Note
+                        </span>
+
+                        <div class="character-rating">
+                            {% for i in 5..1 %}
+                                <input
+                                    id="rate-{{ i }}"
+                                    type="radio"
+                                    name="rate"
+                                    value="{{ i }}"
+                                    class="character-rating__input"
+                                    required
+                                >
+
+                                <label
+                                    for="rate-{{ i }}"
+                                    class="character-rating__star"
+                                >
+                                    ★
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="character-comment-form__comment">
+                        {{ form_widget(commentForm.comment, {
+                            attr: {
+                                class: 'character-comment-form__textarea',
+                                placeholder: 'Votre commentaire...'
+                            }
+                        }) }}
+
+                        {{ form_errors(commentForm.comment) }}
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="character-comment-form__submit"
+                    >
+                        <i
+                            class="bi bi-send-fill"
+                            aria-hidden="true"
+                        ></i>
+                        Soumettre l’avis
+                    </button>
+
+                {{ form_end(commentForm) }}
+            </div>
+        {% endif %}
+    </div>
+</section>

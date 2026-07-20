@@ -3,10 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\Character;
+use App\Entity\Comment;
 use App\Entity\User;
 use App\Form\CharacterType;
+use App\Form\CommentType;
 use App\Repository\CharacterRepository;
 use App\Service\CharacterPublicIdGenerator;
+use App\Repository\CommentRepository;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\Request;
@@ -71,16 +75,53 @@ final class CharacterController extends AbstractController
     public function show(
         #[MapEntity(mapping: ['publicId' => 'publicId'])]
         Character $character,
+        CommentRepository $commentRepository,
     ): Response {
-        if (
-            !$character->isShared()
-            || !$character->isAuthorized()
-        ) {
-            throw $this->createNotFoundException();
+        if (!$character->isShared() || !$character->isAuthorized()) {
+            throw $this->createNotFoundException(
+                'Ce personnage n’est pas disponible publiquement.',
+            );
+        }
+
+        $publishedComments = $commentRepository
+            ->findPublishedByCharacter($character);
+
+        $currentUserComment = null;
+        $commentForm = null;
+
+        $user = $this->getUser();
+
+        if ($user instanceof User) {
+            $currentUserComment = $commentRepository
+                ->findOneByOwnerAndCharacter($user, $character);
+
+            if (
+                $character->getOwner() !== $user
+                && $currentUserComment === null
+            ) {
+                $comment = new Comment();
+
+                $commentForm = $this->createForm(
+                    CommentType::class,
+                    $comment,
+                    [
+                        'action' => $this->generateUrl(
+                            'app_character_comment_create',
+                            [
+                                'publicId' => $character->getPublicId(),
+                            ],
+                        ),
+                        'method' => 'POST',
+                    ],
+                );
+            }
         }
 
         return $this->render('character/show.html.twig', [
             'character' => $character,
+            'publishedComments' => $publishedComments,
+            'currentUserComment' => $currentUserComment,
+            'commentForm' => $commentForm?->createView(),
         ]);
     }
 
@@ -428,6 +469,125 @@ final class CharacterController extends AbstractController
         return new Response($image, Response::HTTP_OK, [
             'Content-Type' => 'image/png',
             'Cache-Control' => 'private, max-age=3600',
+        ]);
+    }
+
+    #[Route(
+        '/characters/{publicId}/comment',
+        name: 'app_character_comment_create',
+        requirements: [
+            'publicId' => '[a-z0-9-]+',
+        ],
+        methods: ['POST'],
+    )]
+    #[IsGranted('ROLE_USER')]
+    public function createComment(
+        #[MapEntity(mapping: ['publicId' => 'publicId'])]
+        Character $character,
+        Request $request,
+        CommentRepository $commentRepository,
+        EntityManagerInterface $entityManager,
+    ): RedirectResponse {
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$character->isShared() || !$character->isAuthorized()) {
+            throw $this->createNotFoundException();
+        }
+
+        if ($character->getOwner() === $user) {
+            $this->addFlash(
+                'error',
+                'Vous ne pouvez pas laisser un avis sur votre propre personnage.',
+            );
+
+            return $this->redirectToRoute('app_character_show', [
+                'publicId' => $character->getPublicId(),
+            ]);
+        }
+
+        $existingComment = $commentRepository
+            ->findOneByOwnerAndCharacter($user, $character);
+
+        if ($existingComment !== null) {
+            $this->addFlash(
+                'error',
+                'Vous avez déjà déposé un avis pour ce personnage.',
+            );
+
+            return $this->redirectToRoute('app_character_show', [
+                'publicId' => $character->getPublicId(),
+            ]);
+        }
+
+        $rate = $request->request->getInt('rate');
+
+        if ($rate < 1 || $rate > 5) {
+            $this->addFlash(
+                'error',
+                'Veuillez sélectionner une note comprise entre 1 et 5 étoiles.',
+            );
+
+            return $this->redirectToRoute('app_character_show', [
+                'publicId' => $character->getPublicId(),
+            ]);
+        }
+
+        $comment = new Comment();
+
+        $comment
+            ->setRate($rate)
+            ->setOwner($user)
+            ->setOnCharacter($character)
+            ->setPublished(false);
+
+        $form = $this->createForm(CommentType::class, $comment, [
+            'action' => $this->generateUrl(
+                'app_character_comment_create',
+                [
+                    'publicId' => $character->getPublicId(),
+                ],
+            ),
+            'method' => 'POST',
+        ]);
+
+        $form->handleRequest($request);
+
+        if (!$form->isSubmitted() || !$form->isValid()) {
+            $this->addFlash(
+                'error',
+                'L’avis n’a pas pu être envoyé. Vérifiez les informations saisies.',
+            );
+
+            return $this->redirectToRoute('app_character_show', [
+                'publicId' => $character->getPublicId(),
+            ]);
+        }
+
+        try {
+            $entityManager->persist($comment);
+            $entityManager->flush();
+        } catch (UniqueConstraintViolationException) {
+            $this->addFlash(
+                'error',
+                'Vous avez déjà déposé un avis pour ce personnage.',
+            );
+
+            return $this->redirectToRoute('app_character_show', [
+                'publicId' => $character->getPublicId(),
+            ]);
+        }
+
+        $this->addFlash(
+            'success',
+            'Votre avis a bien été envoyé et sera visible après validation.',
+        );
+
+        return $this->redirectToRoute('app_character_show', [
+            'publicId' => $character->getPublicId(),
         ]);
     }
 

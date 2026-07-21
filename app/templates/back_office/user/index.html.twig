@@ -1,20 +1,136 @@
-{% extends 'base.html.twig' %}
+{% extends 'back_office/base.html.twig' %}
 
-{% block title %}Hello BackOffice/UserController!{% endblock %}
+{% block title %}
+    Utilisateurs | {{ parent() }}
+{% endblock %}
 
-{% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+{% block back_office_content %}
+    {% if users is empty %}
+        <div class="back-office-empty">
+            Aucun utilisateur à afficher.
+        </div>
+    {% else %}
+        <div class="table-responsive users-table-wrapper">
+            <table class="table users-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Utilisateur</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Personnages</th>
+                        <th scope="col">Statut</th>
+                        <th scope="col" class="text-end">Actions</th>
+                    </tr>
+                </thead>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+                <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>
+                                <div class="user-cell">
+                                    <span
+                                        class="user-cell__avatar"
+                                        aria-hidden="true"
+                                    >
+                                        {{ user.username|first|upper }}
+                                    </span>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/var/www/src/Controller/BackOffice/DashboardController.php</code></li>
-        <li>Your template at <code>/var/www/templates/back_office/dashboard/index.html.twig</code></li>
-    </ul>
-</div>
+                                    <span class="user-cell__username">
+                                        {{ user.username }}
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td>
+                                <a
+                                    href="mailto:{{ user.email }}"
+                                    class="users-table__email"
+                                >
+                                    {{ user.email }}
+                                </a>
+                            </td>
+
+                            <td>
+                                <span class="users-table__count">
+                                    {{ user.characters|length }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {% if user.suspended %}
+                                    <span class="user-status user-status--suspended">
+                                        Suspendu
+                                    </span>
+                                {% else %}
+                                    <span class="user-status user-status--active">
+                                        Actif
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <div class="user-actions">
+                                    <form
+                                        method="post"
+                                        action="{{ path(
+                                            'app_back_office_user_toggle_suspension',
+                                            { id: user.id }
+                                        ) }}"
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="_token"
+                                            value="{{ csrf_token(
+                                                'toggle-suspension-user-' ~ user.id
+                                            ) }}"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="btn user-actions__suspension"
+                                        >
+                                            {{ user.suspended
+                                                ? 'Réactiver'
+                                                : 'Suspendre'
+                                            }}
+                                        </button>
+                                    </form>
+
+                                    <form
+                                        method="post"
+                                        action="{{ path(
+                                            'app_back_office_user_delete',
+                                            { id: user.id }
+                                        ) }}"
+                                        onsubmit="return confirm(
+                                            'Supprimer définitivement ce compte, ses personnages et ses commentaires ?'
+                                        );"
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="_token"
+                                            value="{{ csrf_token(
+                                                'delete-user-' ~ user.id
+                                            ) }}"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="btn user-actions__delete"
+                                            aria-label="Supprimer le compte de {{ user.username }}"
+                                            title="Supprimer"
+                                        >
+                                            <i
+                                                class="bi bi-trash"
+                                                aria-hidden="true"
+                                            ></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
 {% endblock %}

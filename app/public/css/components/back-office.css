@@ -786,3 +786,205 @@
         width: 100%;
     }
 }
+
+/* =========================
+   USERS MANAGEMENT
+========================= */
+
+.users-table-wrapper {
+    overflow: hidden;
+    background-color: #0f1830;
+    border: 1px solid rgba(139, 92, 246, 0.28);
+    border-radius: 0.85rem;
+}
+
+.users-table {
+    width: 100%;
+    min-width: 820px;
+    margin: 0;
+    color: var(--color-text-soft);
+    border-collapse: separate;
+    border-spacing: 0;
+    --bs-table-bg: transparent;
+    --bs-table-accent-bg: transparent;
+    --bs-table-striped-bg: transparent;
+    --bs-table-striped-color: inherit;
+    --bs-table-active-bg: transparent;
+    --bs-table-active-color: inherit;
+    --bs-table-hover-bg: transparent;
+    --bs-table-hover-color: inherit;
+    --bs-table-color: var(--color-text-soft);
+    --bs-table-border-color: rgba(139, 92, 246, 0.14);
+}
+
+.users-table > :not(caption) > * > * {
+    color: inherit;
+    background-color: transparent;
+    box-shadow: none;
+    border-bottom-color: rgba(139, 92, 246, 0.14);
+}
+
+.users-table thead th {
+    padding: 0.85rem 1.25rem;
+    color: #71809c;
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    vertical-align: middle;
+    background-color: rgba(255, 255, 255, 0.012);
+    border-bottom: 1px solid rgba(139, 92, 246, 0.24);
+}
+
+.users-table tbody td {
+    height: 3.75rem;
+    padding: 0.75rem 1.25rem;
+    color: var(--color-text-soft);
+    font-size: 0.75rem;
+    vertical-align: middle;
+    background-color: transparent;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.12);
+}
+
+.users-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 0;
+}
+
+.user-cell__avatar {
+    display: inline-flex;
+    flex: 0 0 1.75rem;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    color: #a78bfa;
+    font-size: 0.65rem;
+    font-weight: 600;
+    line-height: 1;
+    background-color: rgba(139, 92, 246, 0.22);
+    border-radius: 50%;
+}
+
+.user-cell__username {
+    overflow: hidden;
+    color: var(--color-text);
+    font-weight: 500;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.users-table__email {
+    color: var(--color-text-soft);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.users-table__email:hover {
+    color: var(--color-primary);
+}
+
+.users-table__count {
+    color: var(--color-text);
+}
+
+.user-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.15rem 0.55rem;
+    font-size: 0.68rem;
+    font-weight: 500;
+    line-height: 1.2;
+    border-radius: 999px;
+}
+
+.user-status--active {
+    color: #00f59f;
+    background-color: rgba(0, 245, 159, 0.1);
+}
+
+.user-status--suspended {
+    color: #ff5f6d;
+    background-color: rgba(255, 95, 109, 0.12);
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.user-actions form {
+    margin: 0;
+}
+
+.user-actions__suspension {
+    min-width: 5.5rem;
+    min-height: 2.25rem;
+    padding: 0.45rem 0.8rem;
+    color: var(--color-text-soft);
+    font-size: 0.7rem;
+    line-height: 1;
+    background-color: #16213d;
+    border: 1px solid rgba(139, 92, 246, 0.28);
+    border-radius: 0.65rem;
+    transition:
+        color 0.15s ease,
+        background-color 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.user-actions__suspension:hover {
+    color: var(--color-text);
+    background-color: #1b2849;
+    border-color: rgba(139, 92, 246, 0.5);
+}
+
+.user-actions__delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.8rem;
+    height: 2.25rem;
+    padding: 0;
+    color: #ff5f6d;
+    font-size: 0.75rem;
+    line-height: 1;
+    background-color: rgba(127, 29, 29, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.45);
+    border-radius: 0.65rem;
+    transition:
+        color 0.15s ease,
+        background-color 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.user-actions__delete:hover {
+    color: #ffffff;
+    background-color: rgba(239, 68, 68, 0.35);
+    border-color: #ef4444;
+}
+
+.back-office-empty {
+    padding: 1.25rem;
+    color: var(--color-text-soft);
+    font-size: 0.8rem;
+    background-color: #0f1830;
+    border: 1px solid rgba(139, 92, 246, 0.28);
+    border-radius: 0.85rem;
+}
+
+@media (max-width: 767.98px) {
+    .users-table thead th,
+    .users-table tbody td {
+        padding-inline: 1rem;
+    }
+}

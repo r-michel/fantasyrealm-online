@@ -988,3 +988,112 @@
         padding-inline: 1rem;
     }
 }
+
+/* =========================
+   EMPLOYEES MANAGEMENT
+========================= */
+
+.employee-create {
+    padding: 1.5rem;
+    background-color: #0f1830;
+    border: 1px solid rgba(139, 92, 246, 0.28);
+    border-radius: 0.85rem;
+}
+
+.employee-create__title {
+    margin: 0 0 1rem;
+    color: var(--color-text);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.employee-create__form {
+    display: grid;
+    grid-template-columns:
+        minmax(10rem, 0.8fr)
+        minmax(13rem, 1fr)
+        minmax(13rem, 1fr)
+        auto;
+    gap: 0.75rem;
+    align-items: start;
+}
+
+.employee-create__field {
+    min-width: 0;
+}
+
+.employee-create .form-control {
+    min-height: 2.75rem;
+    color: var(--color-text);
+    font-size: 0.75rem;
+    background-color: #0d152a;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 0.7rem;
+}
+
+.employee-create .form-control::placeholder {
+    color: #55627a;
+}
+
+.employee-create .form-control:focus {
+    color: var(--color-text);
+    background-color: #0d152a;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.15rem rgba(139, 92, 246, 0.15);
+}
+
+.employee-create__submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-height: 2.75rem;
+    padding-inline: 1.25rem;
+    white-space: nowrap;
+    border-radius: 0.7rem;
+}
+
+.employee-create .invalid-feedback,
+.employee-create .form-error-message,
+.employee-create__field > ul {
+    margin: 0.35rem 0 0;
+    padding-left: 0;
+    color: #fb7185;
+    font-size: 0.7rem;
+    list-style: none;
+}
+
+.employee-list {
+    margin-top: 1.5rem;
+}
+
+.employee-role {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.55rem;
+    color: #a78bfa;
+    font-size: 0.68rem;
+    font-weight: 500;
+    background-color: rgba(139, 92, 246, 0.18);
+    border-radius: 999px;
+}
+
+@media (max-width: 1199.98px) {
+    .employee-create__form {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .employee-create__submit {
+        width: 100%;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .employee-create {
+        padding: 1rem;
+    }
+
+    .employee-create__form {
+        grid-template-columns: 1fr;
+    }
+}

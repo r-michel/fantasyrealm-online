@@ -1,20 +1,206 @@
-{% extends 'base.html.twig' %}
+{% extends 'back_office/base.html.twig' %}
 
-{% block title %}Hello BackOffice/EmployeeController!{% endblock %}
+{% block title %}
+    Employés | {{ parent() }}
+{% endblock %}
 
-{% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+{% block back_office_content %}
+    <section class="employee-create">
+        <h2 class="employee-create__title">
+            Créer un compte employé
+        </h2>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+        {{ form_start(employeeForm, {
+            attr: {
+                class: 'employee-create__form'
+            }
+        }) }}
+            <div class="employee-create__field">
+                {{ form_label(employeeForm.username, null, {
+                    label_attr: {
+                        class: 'visually-hidden'
+                    }
+                }) }}
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/var/www/src/Controller/BackOffice/DashboardController.php</code></li>
-        <li>Your template at <code>/var/www/templates/back_office/dashboard/index.html.twig</code></li>
-    </ul>
-</div>
+                {{ form_widget(employeeForm.username, {
+                    attr: {
+                        class: 'form-control'
+                    }
+                }) }}
+
+                {{ form_errors(employeeForm.username) }}
+            </div>
+
+            <div class="employee-create__field">
+                {{ form_label(employeeForm.email, null, {
+                    label_attr: {
+                        class: 'visually-hidden'
+                    }
+                }) }}
+
+                {{ form_widget(employeeForm.email, {
+                    attr: {
+                        class: 'form-control'
+                    }
+                }) }}
+
+                {{ form_errors(employeeForm.email) }}
+            </div>
+
+            <div class="employee-create__field">
+                {{ form_label(employeeForm.plainPassword, null, {
+                    label_attr: {
+                        class: 'visually-hidden'
+                    }
+                }) }}
+
+                {{ form_widget(employeeForm.plainPassword, {
+                    attr: {
+                        class: 'form-control'
+                    }
+                }) }}
+
+                {{ form_errors(employeeForm.plainPassword) }}
+            </div>
+
+            <button
+                type="submit"
+                class="btn btn-primary-custom employee-create__submit"
+            >
+                <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                Créer
+            </button>
+        {{ form_end(employeeForm) }}
+    </section>
+
+    <section class="employee-list">
+        {% if employees is empty %}
+            <div class="back-office-empty">
+                Aucun compte employé à afficher.
+            </div>
+        {% else %}
+            <div class="table-responsive users-table-wrapper">
+                <table class="table users-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Employé</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Rôle</th>
+                            <th scope="col">Statut</th>
+                            <th scope="col" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for employee in employees %}
+                            <tr>
+                                <td>
+                                    <div class="user-cell">
+                                        <span
+                                            class="user-cell__avatar"
+                                            aria-hidden="true"
+                                        >
+                                            {{ employee.username|first|upper }}
+                                        </span>
+
+                                        <span class="user-cell__username">
+                                            {{ employee.username }}
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <a
+                                        href="mailto:{{ employee.email }}"
+                                        class="users-table__email"
+                                    >
+                                        {{ employee.email }}
+                                    </a>
+                                </td>
+
+                                <td>
+                                    <span class="employee-role">
+                                        Employé
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {% if employee.suspended %}
+                                        <span class="user-status user-status--suspended">
+                                            Suspendu
+                                        </span>
+                                    {% else %}
+                                        <span class="user-status user-status--active">
+                                            Actif
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <div class="user-actions">
+                                        <form
+                                            method="post"
+                                            action="{{ path(
+                                                'app_back_office_employee_toggle_suspension',
+                                                { id: employee.id }
+                                            ) }}"
+                                        >
+                                            <input
+                                                type="hidden"
+                                                name="_token"
+                                                value="{{ csrf_token(
+                                                    'toggle-suspension-employee-' ~ employee.id
+                                                ) }}"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="btn user-actions__suspension"
+                                            >
+                                                {{ employee.suspended
+                                                    ? 'Réactiver'
+                                                    : 'Suspendre'
+                                                }}
+                                            </button>
+                                        </form>
+
+                                        <form
+                                            method="post"
+                                            action="{{ path(
+                                                'app_back_office_employee_delete',
+                                                { id: employee.id }
+                                            ) }}"
+                                            onsubmit="return confirm(
+                                                'Supprimer définitivement ce compte employé ?'
+                                            );"
+                                        >
+                                            <input
+                                                type="hidden"
+                                                name="_token"
+                                                value="{{ csrf_token(
+                                                    'delete-employee-' ~ employee.id
+                                                ) }}"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="btn user-actions__delete"
+                                                aria-label="Supprimer le compte de {{ employee.username }}"
+                                                title="Supprimer"
+                                            >
+                                                <i
+                                                    class="bi bi-trash"
+                                                    aria-hidden="true"
+                                                ></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </section>
 {% endblock %}

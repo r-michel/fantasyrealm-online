@@ -33,6 +33,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
+    /**
+     * @return User[]
+     */
     public function findRegularUsers(): array
     {
         $users = $this->findBy([], ['username' => 'ASC']);
@@ -45,6 +48,29 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
                 return !in_array('ROLE_EMPLOYEE', $roles, true)
                     && !in_array('ROLE_ADMIN', $roles, true);
             },
+        ));
+    }
+
+    /**
+     * @return User[]
+     */
+    public function findEmployees(): array
+    {
+        $users = $this->findBy([], [
+            'username' => 'ASC',
+        ]);
+
+        return array_values(array_filter(
+            $users,
+            static fn (User $user): bool => in_array(
+                'ROLE_EMPLOYEE',
+                $user->getRoles(),
+                true,
+            ) && !in_array(
+                'ROLE_ADMIN',
+                $user->getRoles(),
+                true,
+            ),
         ));
     }
 }

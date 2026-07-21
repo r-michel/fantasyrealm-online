@@ -2296,3 +2296,49 @@ ul.form-errors {
         flex-direction: column;
     }
 }
+
+/* =========================
+   ANNOUNCEMENTS
+========================= */
+
+.application-announcement {
+    position: relative;
+    z-index: 20;
+    color: #f5f3ff;
+    background: linear-gradient(90deg, #6d28d9, #7c3aed);
+    border-bottom: 1px solid rgb(255 255 255 / 15%);
+    box-shadow: 0 0.4rem 1.25rem rgb(0 0 0 / 20%);
+}
+
+.application-announcement__content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 52px;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    text-align: center;
+    font-weight: 500;
+}
+
+.application-announcement__icon {
+    flex: 0 0 auto;
+    font-size: 1.1rem;
+}
+
+.application-announcement__message {
+    line-height: 1.5;
+}
+
+@media (max-width: 576px) {
+    .application-announcement__content {
+        align-items: flex-start;
+        justify-content: flex-start;
+        text-align: left;
+    }
+
+    .application-announcement__icon {
+        margin-top: 0.15rem;
+    }
+}

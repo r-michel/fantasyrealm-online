@@ -1,0 +1,97 @@
+{% extends 'back_office/base.html.twig' %}
+
+{% block title %}
+    Paramètres de l'Application | {{ parent() }}
+{% endblock %}
+
+{% block back_office_content %}
+    <div class="container py-5">
+        <header class="settings-header">
+            <h1>Paramètres de l’application</h1>
+
+            <p>
+                Configurez les informations dynamiques affichées aux utilisateurs.
+            </p>
+        </header>
+
+        <section class="settings-card">
+            {{ form_start(settingsForm, {
+                attr: {
+                    class: 'settings-form'
+                }
+            }) }}
+
+                <div class="settings-switch">
+                    <div>
+                        {{ form_label(
+                            settingsForm.announcementEnabled,
+                            null,
+                            {
+                                label_attr: {
+                                    class: 'settings-label'
+                                }
+                            }
+                        ) }}
+
+                        <p class="settings-field-help">
+                            Active ou désactive l’affichage du message sur l’ensemble du site.
+                        </p>
+                    </div>
+
+                    {{ form_widget(settingsForm.announcementEnabled, {
+                        attr: {
+                            class: 'form-check-input'
+                        }
+                    }) }}
+                </div>
+
+                {{ form_errors(settingsForm.announcementEnabled) }}
+
+                <div class="settings-field">
+                    {{ form_label(
+                        settingsForm.announcementMessage,
+                        null,
+                        {
+                            label_attr: {
+                                class: 'settings-label'
+                            }
+                        }
+                    ) }}
+
+                    {{ form_widget(settingsForm.announcementMessage, {
+                        attr: {
+                            class: 'settings-textarea',
+                            rows: 5,
+                            maxlength: 500,
+                            placeholder: 'Exemple : une maintenance est prévue dimanche à 18 h.'
+                        }
+                    }) }}
+
+                    {{ form_errors(settingsForm.announcementMessage) }}
+
+                    <p class="settings-field-help">
+                        Le message sera affiché uniquement lorsque le bandeau est activé.
+                    </p>
+                </div>
+
+                <div class="settings-actions">
+                    {{ form_widget(settingsForm.save, {
+                        attr: {
+                            class: 'settings-submit'
+                        }
+                    }) }}
+                </div>
+
+            {{ form_end(settingsForm) }}
+        </section>
+
+        {% if settings.updatedAt %}
+            <p class="settings-update-date">
+                Dernière modification le
+                <time datetime="{{ settings.updatedAt|date('c') }}">
+                    {{ settings.updatedAt|date('d/m/Y à H:i') }}
+                </time>
+            </p>
+        {% endif %}
+    </div>
+{% endblock %}

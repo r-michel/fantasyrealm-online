@@ -1,0 +1,97 @@
+{% set currentRoute = app.request.attributes.get('_route') %}
+{% set pendingCount = pendingCount|default(0) %}
+
+<nav
+    class="back-office-navigation"
+    aria-label="Navigation du back-office"
+>
+    <ul class="nav nav-pills nav-fill flex-column flex-md-row gap-1">
+        <li class="nav-item">
+            <a
+                href="{{ path('app_back_office_dashboard_index') }}"
+                class="nav-link {{
+                    currentRoute starts with 'app_back_office_dashboard_'
+                        ? 'active'
+                        : ''
+                }}"
+                {% if currentRoute starts with 'app_back_office_dashboard_' %}
+                    aria-current="page"
+                {% endif %}
+            >
+                <span>Validations</span>
+
+                {% if pendingCount > 0 %}
+                    <span class="badge rounded-pill text-bg-warning">
+                        {{ pendingCount }}
+                    </span>
+                {% endif %}
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a
+                href="{{ path('app_back_office_catalog_index') }}"
+                class="nav-link {{
+                    currentRoute starts with 'app_back_office_catalog_'
+                        ? 'active'
+                        : ''
+                }}"
+                {% if currentRoute starts with 'app_back_office_catalog_' %}
+                    aria-current="page"
+                {% endif %}
+            >
+                Catalogue
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a
+                href="{{ path('app_back_office_user_index') }}"
+                class="nav-link {{
+                    currentRoute starts with 'app_back_office_user_'
+                        ? 'active'
+                        : ''
+                }}"
+                {% if currentRoute starts with 'app_back_office_user_' %}
+                    aria-current="page"
+                {% endif %}
+            >
+                Utilisateurs
+            </a>
+        </li>
+
+        {% if is_granted('ROLE_ADMIN') %}
+            <li class="nav-item">
+                <a
+                    href="{{ path('app_back_office_employee_index') }}"
+                    class="nav-link {{
+                        currentRoute starts with 'app_back_office_employee_'
+                            ? 'active'
+                            : ''
+                    }}"
+                    {% if currentRoute starts with 'app_back_office_employee_' %}
+                        aria-current="page"
+                    {% endif %}
+                >
+                    Employés
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a
+                    href="{{ path('app_back_office_activity_log_index') }}"
+                    class="nav-link {{
+                        currentRoute starts with 'app_back_office_activity_log_'
+                            ? 'active'
+                            : ''
+                    }}"
+                    {% if currentRoute starts with 'app_back_office_activity_log_' %}
+                        aria-current="page"
+                    {% endif %}
+                >
+                    Journaux
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>

@@ -8,8 +8,21 @@
 
                     <div class="d-flex align-items-center gap-4">
 
-                        <a class="site-brand" href="{{ path('app_home') }}">
-                            FantasyRealm
+                        <a
+                            class="site-brand"
+                            href="{{ path('app_home') }}"
+                        >
+                            <span class="site-brand__icon">
+                                <i class="bi bi-gem"></i>
+                            </span>
+
+                            <span class="site-brand__title">
+                                <span class="site-brand__title-main">Fantasy</span><span class="site-brand__title-accent">Realm</span>
+                            </span>
+
+                            <small class="site-brand__subtitle">
+                                Online
+                            </small>
                         </a>
 
                         <div class="d-flex align-items-center gap-3">
@@ -32,13 +45,37 @@
 
                         {% if app.user %}
 
-                            <a
-                                href="{{ path('app_account') }}"
-                                class="site-nav-link"
-                            >
-                                <i class="bi bi-person-fill"></i>
-                                <span>Mon espace</span>
-                            </a>
+                            {% if is_granted('ROLE_ADMIN') %}
+
+                                <a
+                                    href="{{ path('app_back_office_dashboard_index') }}"
+                                    class="site-nav-link"
+                                >
+                                    <i class="bi bi-person-fill-gear"></i>
+                                    <span>Espace Administrateur</span>
+                                </a>
+
+                            {% elseif is_granted('ROLE_EMPLOYEE') %}
+
+                                <a
+                                    href="{{ path('app_back_office_dashboard_index') }}"
+                                    class="site-nav-link"
+                                >
+                                    <i class="bi bi-person-workspace"></i>
+                                    <span>Espace Employé</span>
+                                </a>
+
+                            {% else %}
+
+                                <a
+                                    href="{{ path('app_account') }}"
+                                    class="site-nav-link"
+                                >
+                                    <i class="bi bi-person-fill"></i>
+                                    <span>Mon espace</span>
+                                </a>
+
+                            {% endif %}
 
                             <span class="fw-semibold">
                                 {{ app.user.username }}

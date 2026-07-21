@@ -1,0 +1,20 @@
+:root {
+    --color-bg: #070d1d;
+    --color-bg-soft: #0b1226;
+    --color-surface: #0b1020;
+    --color-surface-secondary: #111934;
+    --color-border: rgba(139, 92, 246, 0.28);
+
+    --color-text: #e5e7eb;
+    --color-text-muted: #7c8aa5;
+    --color-text-soft: #4b5872;
+
+    --color-primary: #8b5cf6;
+    --color-primary-hover: #7c3aed;
+    --color-primary-soft: rgba(139, 92, 246, 0.16);
+
+    --color-cyan: #22d3ee;
+    --color-white: #ffffff;
+
+    --font-main: system-ui, sans-serif;
+}

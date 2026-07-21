@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    Back-office | {{ parent() }}
+{% endblock %}
+
+{% block body %}
+    <main class="back-office container py-4 py-lg-5">
+        <header class="back-office-header mb-4">
+            <h1 class="back-office-header__title mb-2">
+                {% if is_granted('ROLE_ADMIN') %}
+                    Espace Administrateur
+                {% else %}
+                    Espace Employé
+                {% endif %}
+            </h1>
+
+            <p class="back-office-header__subtitle mb-0">
+                Connecté en tant que
+
+                <strong class="back-office-header__role">
+                    {% if is_granted('ROLE_ADMIN') %}
+                        Administrateur
+                    {% else %}
+                        Employé
+                    {% endif %}
+                </strong>
+            </p>
+        </header>
+
+        {% include 'back_office/_navigation.html.twig' %}
+
+        <section class="back-office-content mt-4 mt-lg-5">
+            {% block back_office_content %}{% endblock %}
+        </section>
+    </main>
+{% endblock %}

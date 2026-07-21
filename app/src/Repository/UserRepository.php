@@ -33,28 +33,44 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
-    //    /**
-    //     * @return User[] Returns an array of User objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('u.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * @return User[]
+     */
+    public function findRegularUsers(): array
+    {
+        $users = $this->findBy([], ['username' => 'ASC']);
 
-    //    public function findOneBySomeField($value): ?User
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        return array_values(array_filter(
+            $users,
+            static function (User $user): bool {
+                $roles = $user->getRoles();
+
+                return !in_array('ROLE_EMPLOYEE', $roles, true)
+                    && !in_array('ROLE_ADMIN', $roles, true);
+            },
+        ));
+    }
+
+    /**
+     * @return User[]
+     */
+    public function findEmployees(): array
+    {
+        $users = $this->findBy([], [
+            'username' => 'ASC',
+        ]);
+
+        return array_values(array_filter(
+            $users,
+            static fn (User $user): bool => in_array(
+                'ROLE_EMPLOYEE',
+                $user->getRoles(),
+                true,
+            ) && !in_array(
+                'ROLE_ADMIN',
+                $user->getRoles(),
+                true,
+            ),
+        ));
+    }
 }

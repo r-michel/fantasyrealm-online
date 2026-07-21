@@ -28,6 +28,8 @@ class ResetPasswordController extends AbstractController
     public function __construct(
         private ResetPasswordHelperInterface $resetPasswordHelper,
         private EntityManagerInterface $entityManager,
+        private readonly string $mailerFromEmail,
+        private readonly string $mailerFromName,
     ) {
     }
 
@@ -154,7 +156,10 @@ class ResetPasswordController extends AbstractController
         }
 
         $email = (new TemplatedEmail())
-            ->from(new Address('noreply@pixelverse.local', 'FantasyRealm Online'))
+            ->from(new Address(
+                $this->mailerFromEmail,
+                $this->mailerFromName
+            ))
             ->to((string) $user->getEmail())
             ->subject('Votre demande de réinitialisation de mot de passe')
             ->htmlTemplate('reset_password/email.html.twig')

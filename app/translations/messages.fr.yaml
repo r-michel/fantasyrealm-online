@@ -2,7 +2,7 @@ appearance:
     gender:
         male: Homme
         female: Femme
-        non-binary: Non binaire
+        non_binary: Non binaire
 
     skinColor:
         light: Claire
@@ -42,5 +42,5 @@ appearance:
     mouthShape:
         thin: Fine
         full: Pulpeuse
-        smile: Souriante
+        smiling: Souriante
         neutral: Neutre

@@ -5,31 +5,39 @@ namespace App\Controller;
 use App\Entity\Character;
 use App\Entity\Comment;
 use App\Entity\User;
+use App\Factory\Activity\CharacterActivityFactory;
 use App\Form\CharacterType;
 use App\Form\CommentType;
 use App\Repository\CharacterRepository;
-use App\Service\CharacterPublicIdGenerator;
 use App\Repository\CommentRepository;
+use App\Service\ActivityLogger;
+use App\Service\CharacterPublicIdGenerator;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class CharacterController extends AbstractController
 {
+    public function __construct(
+        private readonly ActivityLogger $activityLogger,
+        private readonly CharacterActivityFactory $characterActivityFactory,
+    ) {
+    }
+
     #[Route('/characters', name: 'app_character_index', methods: ['GET'])]
-        public function index(
+    public function index(
         Request $request,
         CharacterRepository $characterRepository,
     ): Response {
         $gender = trim($request->query->getString('gender'));
         $creatorPseudo = trim(
-            $request->query->getString('creator')
+            $request->query->getString('creator'),
         );
 
         $createdAfter = $this->createDateFromQuery(
@@ -125,15 +133,18 @@ final class CharacterController extends AbstractController
         ]);
     }
 
-    #[Route('/character/new', name: 'app_character_new', methods: ['GET', 'POST'])]
+    #[Route(
+        '/character/new',
+        name: 'app_character_new',
+        methods: ['GET', 'POST'],
+    )]
     #[IsGranted('ROLE_USER')]
     public function new(
         Request $request,
         EntityManagerInterface $entityManager,
         CharacterPublicIdGenerator $publicIdGenerator,
     ): Response {
-        /** @var User $user */
-        $user = $this->getUser();
+        $user = $this->getActivityActor();
 
         $character = new Character();
         $character
@@ -163,22 +174,40 @@ final class CharacterController extends AbstractController
 
             if (is_string($generatedImage) && $generatedImage !== '') {
                 $character->setImage(
-                    $this->decodeGeneratedImage($generatedImage)
+                    $this->decodeGeneratedImage($generatedImage),
                 );
             }
 
             if ($character->getPublicId() === null) {
                 $character->setPublicId(
-                    $publicIdGenerator->generate($character->getName()),
+                    $publicIdGenerator->generate(
+                        $character->getName(),
+                    ),
                 );
             }
 
             $entityManager->persist($character);
             $entityManager->flush();
 
+            $this->activityLogger->save(
+                $this->characterActivityFactory->created(
+                    actor: $user,
+                    character: $character,
+                    details: [
+                        'name' => $character->getName(),
+                        'appearance' => $this->getAppearanceSnapshot(
+                            $character,
+                        ),
+                        'equipment' => $this->getEquipmentSnapshot(
+                            $character,
+                        ),
+                    ],
+                ),
+            );
+
             $this->addFlash(
                 'success',
-                'Votre personnage a été envoyé à notre équipe pour validation.'
+                'Votre personnage a été envoyé à notre équipe pour validation.',
             );
 
             return $this->redirectToRoute('app_account');
@@ -200,11 +229,15 @@ final class CharacterController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
     ): Response {
-        if ($character->getOwner() !== $this->getUser()) {
+        $actor = $this->getActivityActor();
+
+        if ($character->getOwner() !== $actor) {
             throw $this->createAccessDeniedException();
         }
 
         $originalName = $character->getName();
+        $originalAppearance = $this->getAppearanceSnapshot($character);
+        $originalEquipment = $this->getEquipmentSnapshot($character);
 
         $form = $this->createForm(
             CharacterType::class,
@@ -238,6 +271,16 @@ final class CharacterController extends AbstractController
 
             $nameHasChanged = $originalName !== $character->getName();
 
+            $appearanceChanges = $this->getChanges(
+                $originalAppearance,
+                $this->getAppearanceSnapshot($character),
+            );
+
+            $equipmentChanges = $this->getEquipmentChanges(
+                $originalEquipment,
+                $this->getEquipmentSnapshot($character),
+            );
+
             if ($nameHasChanged) {
                 $character->setAuthorized(false);
             }
@@ -245,6 +288,41 @@ final class CharacterController extends AbstractController
             $character->setUpdatedAt(new \DateTimeImmutable());
 
             $entityManager->flush();
+
+            if ($nameHasChanged) {
+                $this->activityLogger->save(
+                    $this->characterActivityFactory->updated(
+                        actor: $actor,
+                        character: $character,
+                        changes: [
+                            'name' => [
+                                'from' => $originalName,
+                                'to' => $character->getName(),
+                            ],
+                        ],
+                    ),
+                );
+            }
+
+            if ($appearanceChanges !== []) {
+                $this->activityLogger->save(
+                    $this->characterActivityFactory->appearanceUpdated(
+                        actor: $actor,
+                        character: $character,
+                        changes: $appearanceChanges,
+                    ),
+                );
+            }
+
+            if ($equipmentChanges !== []) {
+                $this->activityLogger->save(
+                    $this->characterActivityFactory->equipmentUpdated(
+                        actor: $actor,
+                        character: $character,
+                        changes: $equipmentChanges,
+                    ),
+                );
+            }
 
             $message = $nameHasChanged
                 ? sprintf(
@@ -277,7 +355,9 @@ final class CharacterController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
     ): RedirectResponse {
-        if ($character->getOwner() !== $this->getUser()) {
+        $actor = $this->getActivityActor();
+
+        if ($character->getOwner() !== $actor) {
             throw $this->createAccessDeniedException(
                 'Vous ne pouvez pas modifier le partage de ce personnage.',
             );
@@ -286,7 +366,7 @@ final class CharacterController extends AbstractController
         $token = $request->request->getString('_token');
 
         if (!$this->isCsrfTokenValid(
-            'share' . $character->getId(),
+            'share'.$character->getId(),
             $token,
         )) {
             $this->addFlash(
@@ -300,6 +380,16 @@ final class CharacterController extends AbstractController
         $character->setShared(!$character->isShared());
 
         $entityManager->flush();
+
+        $this->activityLogger->save(
+            $this->characterActivityFactory->shared(
+                actor: $actor,
+                character: $character,
+                details: [
+                    'shared' => $character->isShared(),
+                ],
+            ),
+        );
 
         $message = $character->isShared()
             ? sprintf(
@@ -319,7 +409,7 @@ final class CharacterController extends AbstractController
     #[Route(
         '/character/{id}/duplicate',
         name: 'app_character_duplicate',
-        methods: ['POST']
+        methods: ['POST'],
     )]
     #[IsGranted('ROLE_USER')]
     public function duplicate(
@@ -329,21 +419,20 @@ final class CharacterController extends AbstractController
         EntityManagerInterface $entityManager,
         CharacterPublicIdGenerator $publicIdGenerator,
     ): RedirectResponse {
-        if ($character->getOwner() !== $this->getUser()) {
+        $user = $this->getActivityActor();
+
+        if ($character->getOwner() !== $user) {
             throw $this->createAccessDeniedException();
         }
 
         if (!$this->isCsrfTokenValid(
-            'duplicate-character-' . $character->getId(),
+            'duplicate-character-'.$character->getId(),
             $request->request->getString('_token'),
         )) {
             throw $this->createAccessDeniedException(
                 'Le jeton CSRF est invalide.',
             );
         }
-
-        /** @var User $user */
-        $user = $this->getUser();
 
         $duplicate = new Character();
 
@@ -390,6 +479,26 @@ final class CharacterController extends AbstractController
         $entityManager->persist($duplicate);
         $entityManager->flush();
 
+        $this->activityLogger->save(
+            $this->characterActivityFactory->created(
+                actor: $user,
+                character: $duplicate,
+                details: [
+                    'duplicatedFrom' => [
+                        'publicId' => $character->getPublicId(),
+                        'name' => $character->getName(),
+                    ],
+                    'name' => $duplicate->getName(),
+                    'appearance' => $this->getAppearanceSnapshot(
+                        $duplicate,
+                    ),
+                    'equipment' => $this->getEquipmentSnapshot(
+                        $duplicate,
+                    ),
+                ],
+            ),
+        );
+
         $this->addFlash(
             'success',
             sprintf(
@@ -411,7 +520,9 @@ final class CharacterController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
     ): RedirectResponse {
-        if ($character->getOwner() !== $this->getUser()) {
+        $actor = $this->getActivityActor();
+
+        if ($character->getOwner() !== $actor) {
             throw $this->createAccessDeniedException(
                 'Vous ne pouvez pas supprimer ce personnage.',
             );
@@ -420,7 +531,7 @@ final class CharacterController extends AbstractController
         $token = $request->request->getString('_token');
 
         if (!$this->isCsrfTokenValid(
-            'delete' . $character->getId(),
+            'delete'.$character->getId(),
             $token,
         )) {
             $this->addFlash(
@@ -433,8 +544,24 @@ final class CharacterController extends AbstractController
 
         $characterName = $character->getName();
 
+        $activity = $this->characterActivityFactory->deleted(
+            actor: $actor,
+            character: $character,
+            details: [
+                'name' => $characterName,
+                'appearance' => $this->getAppearanceSnapshot(
+                    $character,
+                ),
+                'equipment' => $this->getEquipmentSnapshot(
+                    $character,
+                ),
+            ],
+        );
+
         $entityManager->remove($character);
         $entityManager->flush();
+
+        $this->activityLogger->save($activity);
 
         $this->addFlash(
             'success',
@@ -591,15 +718,146 @@ final class CharacterController extends AbstractController
         ]);
     }
 
+    /**
+     * @return array<string, string|null>
+     */
+    private function getAppearanceSnapshot(
+        Character $character,
+    ): array {
+        return [
+            'gender' => $character->getGender(),
+            'skinColor' => $character->getSkinColor(),
+            'hairColor' => $character->getHairColor(),
+            'eyeColor' => $character->getEyeColor(),
+            'eyeShape' => $character->getEyeShape(),
+            'noseShape' => $character->getNoseShape(),
+            'mouthShape' => $character->getMouthShape(),
+        ];
+    }
+
+    /**
+     * @return list<array{
+     *     id: string,
+     *     name: string,
+     *     category: string|null
+     * }>
+     */
+    private function getEquipmentSnapshot(
+        Character $character,
+    ): array {
+        $equipmentSnapshot = [];
+
+        foreach ($character->getEquipment() as $equipment) {
+            $equipmentSnapshot[] = [
+                'id' => (string) $equipment->getId(),
+                'name' => $equipment->getName(),
+                'category' => $equipment
+                    ->getCategory()
+                    ?->getCode(),
+            ];
+        }
+
+        usort(
+            $equipmentSnapshot,
+            static fn (array $first, array $second): int =>
+                $first['id'] <=> $second['id'],
+        );
+
+        return $equipmentSnapshot;
+    }
+
+    /**
+     * @param array<string, mixed> $before
+     * @param array<string, mixed> $after
+     *
+     * @return array<string, array{from: mixed, to: mixed}>
+     */
+    private function getChanges(
+        array $before,
+        array $after,
+    ): array {
+        $changes = [];
+
+        foreach ($after as $field => $value) {
+            $previousValue = $before[$field] ?? null;
+
+            if ($previousValue === $value) {
+                continue;
+            }
+
+            $changes[$field] = [
+                'from' => $previousValue,
+                'to' => $value,
+            ];
+        }
+
+        return $changes;
+    }
+
+    /**
+     * @param list<array{
+     *     id: string,
+     *     name: string,
+     *     category: string|null
+     * }> $before
+     * @param list<array{
+     *     id: string,
+     *     name: string,
+     *     category: string|null
+     * }> $after
+     *
+     * @return array<string, list<array{
+     *     id: string,
+     *     name: string,
+     *     category: string|null
+     * }>>
+     */
+    private function getEquipmentChanges(
+        array $before,
+        array $after,
+    ): array {
+        $beforeById = [];
+
+        foreach ($before as $equipment) {
+            $beforeById[$equipment['id']] = $equipment;
+        }
+
+        $afterById = [];
+
+        foreach ($after as $equipment) {
+            $afterById[$equipment['id']] = $equipment;
+        }
+
+        $added = array_values(
+            array_diff_key($afterById, $beforeById),
+        );
+
+        $removed = array_values(
+            array_diff_key($beforeById, $afterById),
+        );
+
+        $changes = [];
+
+        if ($added !== []) {
+            $changes['added'] = $added;
+        }
+
+        if ($removed !== []) {
+            $changes['removed'] = $removed;
+        }
+
+        return $changes;
+    }
+
     private function decodeGeneratedImage(string $dataUrl): string
     {
         if (!preg_match(
             '#^data:image/png;base64,(.+)$#',
             $dataUrl,
-            $matches
+            $matches,
         )) {
             throw new \InvalidArgumentException(
-                'Le format de l’image générée est invalide.'
+                'Le format de l’image générée est invalide.',
             );
         }
 
@@ -607,13 +865,13 @@ final class CharacterController extends AbstractController
 
         if ($binary === false) {
             throw new \InvalidArgumentException(
-                'Impossible de décoder l’image générée.'
+                'Impossible de décoder l’image générée.',
             );
         }
 
         if (strlen($binary) > 2 * 1024 * 1024) {
             throw new \InvalidArgumentException(
-                'L’image générée est trop volumineuse.'
+                'L’image générée est trop volumineuse.',
             );
         }
 
@@ -621,7 +879,7 @@ final class CharacterController extends AbstractController
 
         if ($imageInfo === false || $imageInfo['mime'] !== 'image/png') {
             throw new \InvalidArgumentException(
-                'L’image générée doit être un fichier PNG valide.'
+                'L’image générée doit être un fichier PNG valide.',
             );
         }
 
@@ -656,7 +914,7 @@ final class CharacterController extends AbstractController
         string $originalName,
         CharacterRepository $characterRepository,
     ): string {
-        $baseName = $originalName . ' - copie';
+        $baseName = $originalName.' - copie';
         $candidate = $baseName;
         $number = 2;
 
@@ -688,5 +946,18 @@ final class CharacterController extends AbstractController
         );
 
         return $date !== false ? $date : null;
+    }
+
+    private function getActivityActor(): User
+    {
+        $actor = $this->getUser();
+
+        if (!$actor instanceof User) {
+            throw $this->createAccessDeniedException(
+                'Aucun utilisateur authentifié.',
+            );
+        }
+
+        return $actor;
     }
 }

@@ -27,6 +27,25 @@
         </a>
         {% include 'partials/_navbar.html.twig' %}
         {% include 'partials/_flash.html.twig' %}
+        {% set applicationSettings = application_settings() %}
+        {% if applicationSettings.announcementEnabled
+            and applicationSettings.announcementMessage %}
+            <aside
+                class="application-announcement"
+                aria-label="Annonce du site"
+            >
+                <div class="container application-announcement__content">
+                    <i
+                        class="bi bi-megaphone-fill application-announcement__icon"
+                        aria-hidden="true"
+                    ></i>
+
+                    <span class="application-announcement__message">
+                        {{ applicationSettings.announcementMessage }}
+                    </span>
+                </div>
+            </aside>
+        {% endif %}
         <main id="main-content">
             {% block body %}{% endblock %}
         </main>

@@ -1498,3 +1498,215 @@
         display: none;
     }
 }
+
+/* =========================
+   SETTINGS
+========================= */
+
+.settings-header {
+    margin-bottom: 2rem;
+}
+
+.settings-header h1 {
+    margin: 0 0 0.5rem;
+    color: var(--color-text-primary, #f4f4f7);
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    font-weight: 600;
+}
+
+.settings-header p {
+    margin: 0;
+    color: var(--color-text-secondary, #8d96ad);
+}
+
+.settings-card {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: var(--color-surface, #111a31);
+    border: 1px solid var(--color-border, #263451);
+    border-radius: .75rem;
+    box-shadow: 0 1rem 2.5rem rgb(0 0 0 / 15%);
+}
+
+.settings-header {
+    max-width: 900px;
+    margin: 0 auto 2rem;
+}
+
+.settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.settings-switch {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--color-border, #263451);
+}
+
+.settings-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-primary, #f4f4f7);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.settings-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-field-help {
+    margin: 0.4rem 0 0;
+    color: var(--color-text-secondary, #8d96ad);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.settings-textarea {
+    display: block;
+    width: 100%;
+    min-height: 140px;
+    padding: 0.875rem 1rem;
+    color: var(--color-text-primary, #f4f4f7);
+    background: var(--color-background, #080f20);
+    border: 1px solid var(--color-border, #34415f);
+    border-radius: 0.5rem;
+    font: inherit;
+    line-height: 1.5;
+    resize: vertical;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.settings-textarea::placeholder {
+    color: var(--color-text-secondary, #8d96ad);
+    opacity: 0.8;
+}
+
+.settings-textarea:hover {
+    border-color: #566584;
+}
+
+.settings-textarea:focus {
+    border-color: #8b5cf6;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgb(139 92 246 / 25%);
+}
+
+.settings-switch .form-check-input {
+    flex: 0 0 auto;
+    width: 3rem;
+    height: 1.5rem;
+    margin: 0;
+    cursor: pointer;
+    appearance: none;
+    background-color: #34415f;
+    background-image: none;
+    border: 0;
+    border-radius: 999px;
+    position: relative;
+    transition: background-color 0.2s ease;
+}
+
+.settings-switch .form-check-input::before {
+    content: "";
+    position: absolute;
+    top: 0.2rem;
+    left: 0.2rem;
+    width: 1.1rem;
+    height: 1.1rem;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+}
+
+.settings-switch .form-check-input:checked {
+    background-color: #8b5cf6;
+}
+
+.settings-switch .form-check-input:checked::before {
+    transform: translateX(1.5rem);
+}
+
+.settings-switch .form-check-input:focus-visible {
+    outline: 3px solid rgb(139 92 246 / 40%);
+    outline-offset: 3px;
+}
+
+.settings-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.settings-submit {
+    min-height: 44px;
+    padding: 0.7rem 1.25rem;
+    color: #fff;
+    background: #7c3aed;
+    border: 0;
+    border-radius: 0.5rem;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.settings-submit:hover {
+    background: #6d28d9;
+}
+
+.settings-submit:active {
+    transform: translateY(1px);
+}
+
+.settings-submit:focus-visible {
+    outline: 3px solid rgb(139 92 246 / 40%);
+    outline-offset: 3px;
+}
+
+.settings-update-date {
+    max-width: 900px;
+    margin: 1rem auto 0;
+    color: var(--color-text-secondary, #8d96ad);
+    font-size: .875rem;
+}
+
+.settings-form .invalid-feedback,
+.settings-form .form-error-message,
+.settings-form ul {
+    margin: 0.5rem 0 0;
+    padding: 0;
+    color: #fca5a5;
+    font-size: 0.875rem;
+    list-style: none;
+}
+
+@media (max-width: 576px) {
+    .settings-card {
+        padding: 1.25rem;
+    }
+
+    .settings-switch {
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .settings-actions {
+        display: block;
+    }
+
+    .settings-submit {
+        width: 100%;
+    }
+}

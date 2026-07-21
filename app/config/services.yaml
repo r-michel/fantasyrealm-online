@@ -24,3 +24,23 @@ services:
             $adminEmail: '%env(ADMIN_EMAIL)%'
             $adminUsername: '%env(ADMIN_USERNAME)%'
             $adminPassword: '%env(ADMIN_PASSWORD)%'
+
+    App\Controller\BackOffice\DashboardController:
+        arguments:
+            $mailerFromEmail: '%env(MAILER_FROM_EMAIL)%'
+            $mailerFromName: '%env(MAILER_FROM_NAME)%'
+
+    App\Controller\RegistrationController:
+        arguments:
+            $mailerFromEmail: '%env(MAILER_FROM_EMAIL)%'
+            $mailerFromName: '%env(MAILER_FROM_NAME)%'
+
+    App\Controller\ResetPasswordController:
+        arguments:
+            $mailerFromEmail: '%env(MAILER_FROM_EMAIL)%'
+            $mailerFromName: '%env(MAILER_FROM_NAME)%'
+
+    App\Controller\ContactController:
+        arguments:
+            $mailerFromEmail: '%env(MAILER_FROM_EMAIL)%'
+            $mailerFromName: '%env(MAILER_FROM_NAME)%'

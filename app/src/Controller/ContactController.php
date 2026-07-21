@@ -16,6 +16,12 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class ContactController extends AbstractController
 {
+    public function __construct(
+        private readonly string $mailerFromEmail,
+        private readonly string $mailerFromName,
+    ) {
+    }
+
     #[Route('/contact', name: 'app_contact')]
     public function index(
         Request $request,
@@ -47,8 +53,12 @@ class ContactController extends AbstractController
                 ));
             } else {
                 $email = (new Email())
-                    ->from($contactRequest->email)
+                    ->from(
+                        $this->mailerFromEmail,
+                        $this->mailerFromName
+                    )
                     ->to($contactEmail)
+                    ->replyTo($contactRequest->email)
                     ->subject('[FantasyRealm] ' . $contactRequest->subject)
                     ->text(sprintf(
                         "Pseudo : %s\nEmail : %s\n\nMessage :\n%s",

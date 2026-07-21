@@ -5,5 +5,198 @@
 {% endblock %}
 
 {% block back_office_content %}
-    <h2>Validations en attente</h2>
+    <section class="back-office-section">
+        <h2 class="back-office-section-title">
+            Noms de personnages en attente
+            <span>({{ pendingCharacters|length }})</span>
+        </h2>
+
+        {% if pendingCharacters is empty %}
+            <div class="alert alert-secondary mb-0">
+                Aucun nom de personnage en attente.
+            </div>
+        {% else %}
+            <div class="d-flex flex-column gap-3">
+                {% for character in pendingCharacters %}
+                    <article class="validation-card">
+                        <div class="validation-card__character">
+                            <div class="validation-card__media">
+                                <img
+                                    src="{{ path('app_character_image', {
+                                        id: character.id,
+                                        v: character.updatedAt
+                                            ? character.updatedAt.timestamp
+                                            : character.createdAt.timestamp
+                                    }) }}"
+                                    alt="Personnage {{ character.name }}"
+                                    loading="lazy"
+                                >
+                            </div>
+
+                            <div class="validation-card__content">
+                                <h3 class="validation-card__title">
+                                    {{ character.name }}
+                                </h3>
+
+                                <p class="validation-card__meta">
+                                    par {{ character.owner.username }}
+                                    <span aria-hidden="true">·</span>
+                                    {{ character.createdAt|date('d/m/Y') }}
+                                    <span aria-hidden="true">·</span>
+                                    {{ ('appearance.gender.' ~ character.gender)|trans }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="validation-card__actions">
+                            <form
+                                method="post"
+                                action="{{ path('app_back_office_dashboard_character_approve', {
+                                    publicId: character.publicId
+                                }) }}"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="_token"
+                                    value="{{ csrf_token('approve-character-' ~ character.publicId) }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary-custom validation-card__approve"
+                                >
+                                    <i class="bi bi-check-circle"></i>
+                                    Approuver
+                                </button>
+                            </form>
+
+                            <form
+                                method="post"
+                                action="{{ path('app_back_office_dashboard_character_reject', {
+                                    publicId: character.publicId
+                                }) }}"
+                                class="validation-card__reject-form"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="_token"
+                                    value="{{ csrf_token('reject-character-' ~ character.publicId) }}"
+                                >
+
+                                <input
+                                    type="text"
+                                    name="reason"
+                                    class="form-control validation-card__reason"
+                                    placeholder="Motif obligatoire..."
+                                    required
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-outline-danger validation-card__reject"
+                                    aria-label="Refuser {{ character.name }}"
+                                    title="Refuser"
+                                >
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="back-office-section">
+        <h2 class="back-office-section-title">
+            Avis en attente
+            <span>({{ pendingComments|length }})</span>
+        </h2>
+
+        {% if pendingComments is empty %}
+            <div class="alert alert-secondary mb-0">
+                Aucun avis en attente.
+            </div>
+        {% else %}
+            <div class="d-flex flex-column gap-3">
+                {% for comment in pendingComments %}
+                    <article class="validation-card validation-card--comment">
+                        <div class="validation-card__content">
+                            <div class="validation-card__comment-header">
+                                <strong>{{ comment.owner.username }}</strong>
+
+                                <span
+                                    class="validation-card__rating"
+                                    aria-label="{{ comment.rate }} étoiles sur 5"
+                                >
+                                    {% for i in 1..5 %}
+                                        <i class="bi {{ i <= comment.rate ? 'bi-star-fill' : 'bi-star' }}"></i>
+                                    {% endfor %}
+                                </span>
+
+                                <small>
+                                    sur {{ comment.onCharacter.name }}
+                                </small>
+                            </div>
+
+                            <p class="validation-card__comment">
+                                {{ comment.comment }}
+                            </p>
+
+                            <time
+                                class="validation-card__date"
+                                datetime="{{ comment.createdAt|date('Y-m-d') }}"
+                            >
+                                {{ comment.createdAt|date('d/m/Y') }}
+                            </time>
+                        </div>
+
+                        <div class="validation-card__comment-actions">
+                            <form
+                                method="post"
+                                action="{{ path('app_back_office_dashboard_comment_approve', {
+                                    id: comment.id
+                                }) }}"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="_token"
+                                    value="{{ csrf_token('approve-comment-' ~ comment.id) }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary-custom"
+                                >
+                                    <i class="bi bi-check-circle"></i>
+                                    Approuver
+                                </button>
+                            </form>
+
+                            <form
+                                method="post"
+                                action="{{ path('app_back_office_dashboard_comment_reject', {
+                                    id: comment.id
+                                }) }}"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="_token"
+                                    value="{{ csrf_token('reject-comment-' ~ comment.id) }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-outline-danger"
+                                >
+                                    <i class="bi bi-x-circle"></i>
+                                    Refuser
+                                </button>
+                            </form>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </section>
 {% endblock %}

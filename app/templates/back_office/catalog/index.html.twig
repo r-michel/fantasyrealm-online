@@ -1,20 +1,233 @@
-{% extends 'base.html.twig' %}
+{% extends 'back_office/base.html.twig' %}
 
-{% block title %}Hello BackOffice/CatalogController!{% endblock %}
+{% block title %}
+    Catalogue | {{ parent() }}
+{% endblock %}
 
-{% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+{% block back_office_content %}
+    <section class="catalog-create">
+        <div class="catalog-create__header">
+            <div>
+                <h2 class="catalog-create__title">
+                    Ajouter un équipement
+                </h2>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+                <p class="catalog-create__description">
+                    Ajoutez un nouvel élément à la bibliothèque de personnalisation.
+                </p>
+            </div>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/var/www/src/Controller/BackOffice/DashboardController.php</code></li>
-        <li>Your template at <code>/var/www/templates/back_office/dashboard/index.html.twig</code></li>
-    </ul>
-</div>
+            <div class="catalog-image-info">
+                <i class="bi bi-info-circle" aria-hidden="true"></i>
+
+                <div>
+                    <strong>Dimensions recommandées</strong>
+
+                    <ul>
+                        <li>Accessoires : 140 x 140 px</li>
+                        <li>Armures et vêtements : 225 x 126 px</li>
+                        <li>Armes : 50 x 160 px</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        {{ form_start(equipmentForm, {
+            attr: {
+                class: 'catalog-create__form'
+            }
+        }) }}
+            <div class="catalog-create__field catalog-create__field--name">
+                {{ form_label(equipmentForm.name, null, {
+                    label_attr: {
+                        class: 'visually-hidden'
+                    }
+                }) }}
+
+                {{ form_widget(equipmentForm.name, {
+                    attr: {
+                        class: 'form-control'
+                    }
+                }) }}
+
+                {{ form_errors(equipmentForm.name) }}
+            </div>
+
+            <div class="catalog-create__field catalog-create__field--category">
+                {{ form_label(equipmentForm.category, null, {
+                    label_attr: {
+                        class: 'visually-hidden'
+                    }
+                }) }}
+
+                {{ form_widget(equipmentForm.category, {
+                    attr: {
+                        class: 'form-select'
+                    }
+                }) }}
+
+                {{ form_errors(equipmentForm.category) }}
+            </div>
+
+            <div class="catalog-create__field catalog-create__field--image">
+                {{ form_label(equipmentForm.imageFile, null, {
+                    label_attr: {
+                        class: 'visually-hidden'
+                    }
+                }) }}
+
+                {{ form_widget(equipmentForm.imageFile, {
+                    attr: {
+                        class: 'form-control'
+                    }
+                }) }}
+
+                {{ form_errors(equipmentForm.imageFile) }}
+            </div>
+
+            <button
+                type="submit"
+                class="btn btn-primary-custom catalog-create__submit"
+            >
+                <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                Ajouter
+            </button>
+        {{ form_end(equipmentForm) }}
+    </section>
+
+    <section class="catalog-list">
+        {% if equipmentList is empty %}
+            <div class="catalog-empty">
+                Aucun équipement dans le catalogue.
+            </div>
+        {% else %}
+            <div class="table-responsive catalog-table-wrapper">
+                <table class="table catalog-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="catalog-table__image-column">
+                                Image
+                            </th>
+                            <th scope="col">
+                                Équipement
+                            </th>
+                            <th scope="col">
+                                Catégorie
+                            </th>
+                            <th scope="col">
+                                Statut
+                            </th>
+                            <th scope="col" class="text-end">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for equipment in equipmentList %}
+                            <tr>
+                                <td>
+                                    <div class="catalog-item-image">
+                                        {% if equipment.image %}
+                                            <img
+                                                src="{{ path('app_equipment_image', {
+                                                    id: equipment.id
+                                                }) }}"
+                                                alt="Aperçu de {{ equipment.name }}"
+                                                class="catalog-item-image__content"
+                                            >
+                                        {% else %}
+                                            <i
+                                                class="bi bi-image"
+                                                aria-hidden="true"
+                                            ></i>
+                                        {% endif %}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <strong class="catalog-item-name">
+                                        {{ equipment.name }}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    {{ equipment.category.name }}
+                                </td>
+
+                                <td>
+                                    {% if equipment.active %}
+                                        <span class="catalog-status catalog-status--active">
+                                            Actif
+                                        </span>
+                                    {% else %}
+                                        <span class="catalog-status catalog-status--inactive">
+                                            Inactif
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <div class="catalog-actions">
+                                        <form
+                                            method="post"
+                                            action="{{ path('app_back_office_catalog_toggle', {
+                                                id: equipment.id
+                                            }) }}"
+                                        >
+                                            <input
+                                                type="hidden"
+                                                name="_token"
+                                                value="{{ csrf_token(
+                                                    'toggle-equipment-' ~ equipment.id
+                                                ) }}"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="btn catalog-actions__toggle"
+                                            >
+                                                {{ equipment.active
+                                                    ? 'Désactiver'
+                                                    : 'Activer'
+                                                }}
+                                            </button>
+                                        </form>
+
+                                        <form
+                                            method="post"
+                                            action="{{ path('app_back_office_catalog_delete', {
+                                                id: equipment.id
+                                            }) }}"
+                                            onsubmit="return confirm('Supprimer définitivement cet équipement ?');"
+                                        >
+                                            <input
+                                                type="hidden"
+                                                name="_token"
+                                                value="{{ csrf_token(
+                                                    'delete-equipment-' ~ equipment.id
+                                                ) }}"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="btn catalog-actions__delete"
+                                                aria-label="Supprimer {{ equipment.name }}"
+                                                title="Supprimer"
+                                            >
+                                                <i
+                                                    class="bi bi-trash"
+                                                    aria-hidden="true"
+                                                ></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </section>
 {% endblock %}

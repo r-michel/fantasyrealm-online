@@ -1,20 +1,220 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello BackOffice/ActivityLogController!{% endblock %}
+{% block title %}Journaux d’activité{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+<section class="back-office-page activity-log-page">
+    <div class="container py-4">
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+        <nav
+            class="back-office-tabs"
+            aria-label="Navigation du back-office"
+        >
+            <a
+                href="{{ path('app_back_office_dashboard_index') }}"
+                class="back-office-tab"
+            >
+                Validations
+            </a>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/var/www/src/Controller/BackOffice/DashboardController.php</code></li>
-        <li>Your template at <code>/var/www/templates/back_office/dashboard/index.html.twig</code></li>
-    </ul>
-</div>
+            <a
+                href="{{ path('app_back_office_catalog_index') }}"
+                class="back-office-tab"
+            >
+                Catalogue
+            </a>
+
+            <a
+                href="{{ path('app_back_office_user_index') }}"
+                class="back-office-tab"
+            >
+                Utilisateurs
+            </a>
+
+            <a
+                href="{{ path('app_back_office_employee_index') }}"
+                class="back-office-tab"
+            >
+                Employés
+            </a>
+
+            <a
+                href="{{ path('app_back_office_activity_log_index') }}"
+                class="back-office-tab active"
+                aria-current="page"
+            >
+                Journaux
+            </a>
+        </nav>
+
+        <section class="activity-log-card">
+            <header class="activity-log-card__header">
+                <div>
+                    <h1 class="activity-log-card__title">
+                        Journaux d’activité
+                        <span class="activity-log-card__count">
+                            {{ totalLogs }}
+                        </span>
+                    </h1>
+
+                    <p class="activity-log-card__subtitle">
+                        Historique des actions réalisées par les utilisateurs,
+                        employés et administrateurs.
+                    </p>
+                </div>
+            </header>
+
+            {% if logs is empty %}
+                <div class="activity-log-empty">
+                    <i class="bi bi-clock-history"></i>
+
+                    <p>
+                        Aucun journal d’activité n’a encore été enregistré.
+                    </p>
+                </div>
+            {% else %}
+                <div class="activity-log-table-wrapper">
+                    <table class="activity-log-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Date</th>
+                                <th scope="col">Utilisateur</th>
+                                <th scope="col">Cible</th>
+                                <th scope="col">Action</th>
+                                <th scope="col">Détail</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for log in logs %}
+                                <tr>
+                                    <td
+                                        class="activity-log-date"
+                                        data-label="Date"
+                                    >
+                                        {% if log.date %}
+                                            <time
+                                                datetime="{{ log.date|date('c') }}"
+                                                title="{{ log.date|date('d/m/Y à H:i:s') }}"
+                                            >
+                                                {{ log.date|date('d/m/Y H:i') }}
+                                            </time>
+                                        {% else %}
+                                            <span>—</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td
+                                        class="activity-log-actor"
+                                        data-label="Utilisateur"
+                                    >
+                                        <strong>
+                                            {{ log.actor }}
+                                        </strong>
+
+                                        <small>
+                                            {{ log.actorType }}
+                                        </small>
+                                    </td>
+
+                                    <td
+                                        class="activity-log-target"
+                                        data-label="Cible"
+                                    >
+                                        <strong>
+                                            {{ log.target }}
+                                        </strong>
+
+                                        <small>
+                                            {{ log.targetType }}
+                                        </small>
+                                    </td>
+
+                                    <td
+                                        class="activity-log-action"
+                                        data-label="Action"
+                                    >
+                                        <span
+                                            class="activity-log-badge {{ log.actionClass }}"
+                                        >
+                                            {{ log.action }}
+                                        </span>
+                                    </td>
+
+                                    <td
+                                        class="activity-log-detail"
+                                        data-label="Détail"
+                                    >
+                                        <span title="{{ log.message }}">
+                                            {{ log.detail }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if totalPages > 1 %}
+                    <nav
+                        class="activity-log-pagination"
+                        aria-label="Pagination des journaux"
+                    >
+                        {% if currentPage > 1 %}
+                            <a
+                                href="{{ path(
+                                    'app_back_office_activity_log_index',
+                                    {
+                                        page: currentPage - 1
+                                    }
+                                ) }}"
+                                class="activity-log-pagination__link"
+                                aria-label="Page précédente"
+                            >
+                                <i class="bi bi-chevron-left"></i>
+                                Précédent
+                            </a>
+                        {% else %}
+                            <span
+                                class="activity-log-pagination__link disabled"
+                                aria-disabled="true"
+                            >
+                                <i class="bi bi-chevron-left"></i>
+                                Précédent
+                            </span>
+                        {% endif %}
+
+                        <span class="activity-log-pagination__status">
+                            Page {{ currentPage }} sur {{ totalPages }}
+                        </span>
+
+                        {% if currentPage < totalPages %}
+                            <a
+                                href="{{ path(
+                                    'app_back_office_activity_log_index',
+                                    {
+                                        page: currentPage + 1
+                                    }
+                                ) }}"
+                                class="activity-log-pagination__link"
+                                aria-label="Page suivante"
+                            >
+                                Suivant
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        {% else %}
+                            <span
+                                class="activity-log-pagination__link disabled"
+                                aria-disabled="true"
+                            >
+                                Suivant
+                                <i class="bi bi-chevron-right"></i>
+                            </span>
+                        {% endif %}
+                    </nav>
+                {% endif %}
+            {% endif %}
+        </section>
+    </div>
+</section>
 {% endblock %}

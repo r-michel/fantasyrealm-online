@@ -3,7 +3,9 @@
 namespace App\Controller\BackOffice;
 
 use App\Entity\User;
+use App\Factory\Activity\UserActivityFactory;
 use App\Repository\UserRepository;
+use App\Service\ActivityLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -16,6 +18,12 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_EMPLOYEE')]
 final class UserController extends AbstractController
 {
+    public function __construct(
+        private readonly ActivityLogger $activityLogger,
+        private readonly UserActivityFactory $userActivityFactory,
+    ) {
+    }
+
     #[Route('', name: 'index', methods: ['GET'])]
     public function index(
         UserRepository $userRepository,
@@ -55,14 +63,36 @@ final class UserController extends AbstractController
 
         $entityManager->flush();
 
+        $actor = $this->getActivityActor();
+
+        $activity = $user->isSuspended()
+            ? $this->userActivityFactory->suspended(
+                actor: $actor,
+                target: $user,
+            )
+            : $this->userActivityFactory->unsuspended(
+                actor: $actor,
+                target: $user,
+            );
+
+        $this->activityLogger->save($activity);
+
         $this->addFlash(
             'success',
             $user->isSuspended()
-                ? sprintf('Le compte de %s a été suspendu.', $user->getUsername())
-                : sprintf('Le compte de %s a été réactivé.', $user->getUsername()),
+                ? sprintf(
+                    'Le compte de %s a été suspendu.',
+                    $user->getUsername(),
+                )
+                : sprintf(
+                    'Le compte de %s a été réactivé.',
+                    $user->getUsername(),
+                ),
         );
 
-        return $this->redirectToRoute('app_back_office_user_index');
+        return $this->redirectToRoute(
+            'app_back_office_user_index',
+        );
     }
 
     #[Route(
@@ -93,8 +123,15 @@ final class UserController extends AbstractController
 
         $username = $user->getUsername();
 
+        $activity = $this->userActivityFactory->deleted(
+            actor: $this->getActivityActor(),
+            target: $user,
+        );
+
         $entityManager->remove($user);
         $entityManager->flush();
+
+        $this->activityLogger->save($activity);
 
         $this->addFlash(
             'success',
@@ -104,6 +141,21 @@ final class UserController extends AbstractController
             ),
         );
 
-        return $this->redirectToRoute('app_back_office_user_index');
+        return $this->redirectToRoute(
+            'app_back_office_user_index',
+        );
+    }
+
+    private function getActivityActor(): User
+    {
+        $actor = $this->getUser();
+
+        if (!$actor instanceof User) {
+            throw $this->createAccessDeniedException(
+                'Aucun utilisateur authentifié.',
+            );
+        }
+
+        return $actor;
     }
 }

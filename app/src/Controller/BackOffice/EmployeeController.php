@@ -3,8 +3,10 @@
 namespace App\Controller\BackOffice;
 
 use App\Entity\User;
+use App\Factory\Activity\EmployeeActivityFactory;
 use App\Form\EmployeeType;
 use App\Repository\UserRepository;
+use App\Service\ActivityLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -18,6 +20,12 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 final class EmployeeController extends AbstractController
 {
+    public function __construct(
+        private readonly ActivityLogger $activityLogger,
+        private readonly EmployeeActivityFactory $employeeActivityFactory,
+    ) {
+    }
+
     #[Route('', name: 'index', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
@@ -54,6 +62,13 @@ final class EmployeeController extends AbstractController
 
             $entityManager->persist($employee);
             $entityManager->flush();
+
+            $this->activityLogger->save(
+                $this->employeeActivityFactory->created(
+                    actor: $this->getActivityActor(),
+                    employee: $employee,
+                ),
+            );
 
             $this->addFlash(
                 'success',
@@ -102,6 +117,20 @@ final class EmployeeController extends AbstractController
 
         $entityManager->flush();
 
+        $actor = $this->getActivityActor();
+
+        $activity = $employee->isSuspended()
+            ? $this->employeeActivityFactory->suspended(
+                actor: $actor,
+                employee: $employee,
+            )
+            : $this->employeeActivityFactory->unsuspended(
+                actor: $actor,
+                employee: $employee,
+            );
+
+        $this->activityLogger->save($activity);
+
         $this->addFlash(
             'success',
             $employee->isSuspended()
@@ -141,8 +170,15 @@ final class EmployeeController extends AbstractController
 
         $username = $employee->getUsername();
 
+        $activity = $this->employeeActivityFactory->deleted(
+            actor: $this->getActivityActor(),
+            employee: $employee,
+        );
+
         $entityManager->remove($employee);
         $entityManager->flush();
+
+        $this->activityLogger->save($activity);
 
         $this->addFlash(
             'success',
@@ -167,5 +203,18 @@ final class EmployeeController extends AbstractController
                 'Ce compte ne peut pas être géré depuis cet écran.',
             );
         }
+    }
+
+    private function getActivityActor(): User
+    {
+        $actor = $this->getUser();
+
+        if (!$actor instanceof User) {
+            throw $this->createAccessDeniedException(
+                'Aucun utilisateur authentifié.',
+            );
+        }
+
+        return $actor;
     }
 }

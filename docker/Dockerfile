@@ -3,13 +3,15 @@ FROM php:8.3-fpm
 ARG UID=1000
 ARG GID=1000
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends  \
     git \
     unzip \
     curl \
     libicu-dev \
     libonig-dev \
     libzip-dev \
+    libssl-dev \
+    pkg-config \
     zip \
     && docker-php-ext-install \
         intl \

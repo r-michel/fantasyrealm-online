@@ -4,21 +4,24 @@ namespace App\Controller\BackOffice;
 
 use App\Entity\Character;
 use App\Entity\Comment;
+use App\Entity\User;
+use App\Factory\Activity\CharacterActivityFactory;
+use App\Factory\Activity\CommentActivityFactory;
 use App\Repository\CharacterRepository;
 use App\Repository\CommentRepository;
+use App\Service\ActivityLogger;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
-
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/back-office', name: 'app_back_office_dashboard_')]
 #[IsGranted('ROLE_EMPLOYEE')]
@@ -27,6 +30,9 @@ final class DashboardController extends AbstractController
     public function __construct(
         private readonly string $mailerFromEmail,
         private readonly string $mailerFromName,
+        private readonly ActivityLogger $activityLogger,
+        private readonly CharacterActivityFactory $characterActivityFactory,
+        private readonly CommentActivityFactory $commentActivityFactory,
     ) {
     }
 
@@ -82,14 +88,23 @@ final class DashboardController extends AbstractController
             return $this->redirectToRoute('app_back_office_dashboard_index');
         }
 
+        $actor = $this->getActivityActor();
+
         $character->setAuthorized(true);
 
         $entityManager->flush();
 
+        $this->activityLogger->save(
+            $this->characterActivityFactory->approved(
+                actor: $actor,
+                character: $character,
+            ),
+        );
+
         $email = (new TemplatedEmail())
             ->from(new Address(
                 $this->mailerFromEmail,
-                $this->mailerFromName
+                $this->mailerFromName,
             ))
             ->to($character->getOwner()->getEmail())
             ->subject('Le nom de votre personnage a été approuvé')
@@ -154,17 +169,26 @@ final class DashboardController extends AbstractController
             return $this->redirectToRoute('app_back_office_dashboard_index');
         }
 
+        $actor = $this->getActivityActor();
         $characterName = $character->getName();
         $owner = $character->getOwner();
         $ownerEmail = $owner->getEmail();
 
+        $activity = $this->characterActivityFactory->rejected(
+            actor: $actor,
+            character: $character,
+            reason: $reason,
+        );
+
         $entityManager->remove($character);
         $entityManager->flush();
+
+        $this->activityLogger->save($activity);
 
         $email = (new TemplatedEmail())
             ->from(new Address(
                 $this->mailerFromEmail,
-                $this->mailerFromName
+                $this->mailerFromName,
             ))
             ->to($ownerEmail)
             ->subject('Le nom de votre personnage a été refusé')
@@ -227,14 +251,23 @@ final class DashboardController extends AbstractController
             return $this->redirectToRoute('app_back_office_dashboard_index');
         }
 
+        $actor = $this->getActivityActor();
+
         $comment->setPublished(true);
 
         $entityManager->flush();
 
+        $this->activityLogger->save(
+            $this->commentActivityFactory->approved(
+                actor: $actor,
+                comment: $comment,
+            ),
+        );
+
         $email = (new TemplatedEmail())
             ->from(new Address(
                 $this->mailerFromEmail,
-                $this->mailerFromName
+                $this->mailerFromName,
             ))
             ->to($comment->getOwner()->getEmail())
             ->subject('Votre avis a été approuvé')
@@ -282,17 +315,25 @@ final class DashboardController extends AbstractController
             );
         }
 
+        $actor = $this->getActivityActor();
         $owner = $comment->getOwner();
         $ownerEmail = $owner->getEmail();
         $characterName = $comment->getOnCharacter()->getName();
 
+        $activity = $this->commentActivityFactory->rejected(
+            actor: $actor,
+            comment: $comment,
+        );
+
         $entityManager->remove($comment);
         $entityManager->flush();
+
+        $this->activityLogger->save($activity);
 
         $email = (new TemplatedEmail())
             ->from(new Address(
                 $this->mailerFromEmail,
-                $this->mailerFromName
+                $this->mailerFromName,
             ))
             ->to($ownerEmail)
             ->subject('Votre avis a été refusé')
@@ -317,5 +358,18 @@ final class DashboardController extends AbstractController
         }
 
         return $this->redirectToRoute('app_back_office_dashboard_index');
+    }
+
+    private function getActivityActor(): User
+    {
+        $actor = $this->getUser();
+
+        if (!$actor instanceof User) {
+            throw $this->createAccessDeniedException(
+                'Aucun utilisateur authentifié.',
+            );
+        }
+
+        return $actor;
     }
 }

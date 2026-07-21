@@ -3,8 +3,11 @@
 namespace App\Controller\BackOffice;
 
 use App\Entity\Equipment;
+use App\Entity\User;
+use App\Factory\Activity\EquipmentActivityFactory;
 use App\Form\EquipmentType;
 use App\Repository\EquipmentRepository;
+use App\Service\ActivityLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -18,6 +21,12 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_EMPLOYEE')]
 final class CatalogController extends AbstractController
 {
+    public function __construct(
+        private readonly ActivityLogger $activityLogger,
+        private readonly EquipmentActivityFactory $equipmentActivityFactory,
+    ) {
+    }
+
     #[Route('', name: 'index', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
@@ -62,6 +71,13 @@ final class CatalogController extends AbstractController
 
             $entityManager->persist($equipment);
             $entityManager->flush();
+
+            $this->activityLogger->save(
+                $this->equipmentActivityFactory->created(
+                    actor: $this->getActivityActor(),
+                    equipment: $equipment,
+                ),
+            );
 
             $this->addFlash(
                 'success',
@@ -111,6 +127,20 @@ final class CatalogController extends AbstractController
 
         $entityManager->flush();
 
+        $actor = $this->getActivityActor();
+
+        $activity = $equipment->isActive()
+            ? $this->equipmentActivityFactory->activated(
+                actor: $actor,
+                equipment: $equipment,
+            )
+            : $this->equipmentActivityFactory->deactivated(
+                actor: $actor,
+                equipment: $equipment,
+            );
+
+        $this->activityLogger->save($activity);
+
         $this->addFlash(
             'success',
             $equipment->isActive()
@@ -151,8 +181,15 @@ final class CatalogController extends AbstractController
             );
         }
 
+        $activity = $this->equipmentActivityFactory->deleted(
+            actor: $this->getActivityActor(),
+            equipment: $equipment,
+        );
+
         $entityManager->remove($equipment);
         $entityManager->flush();
+
+        $this->activityLogger->save($activity);
 
         $this->addFlash(
             'success',
@@ -162,5 +199,18 @@ final class CatalogController extends AbstractController
         return $this->redirectToRoute(
             'app_back_office_catalog_index',
         );
+    }
+
+    private function getActivityActor(): User
+    {
+        $actor = $this->getUser();
+
+        if (!$actor instanceof User) {
+            throw $this->createAccessDeniedException(
+                'Aucun utilisateur authentifié.',
+            );
+        }
+
+        return $actor;
     }
 }

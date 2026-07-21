@@ -1097,3 +1097,403 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* =========================
+   LOGS
+========================= */
+
+.activity-log-page {
+    min-height: calc(100vh - 80px);
+    background: var(--color-bg);
+}
+
+.back-office-tabs {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.35rem;
+    margin-bottom: 2rem;
+    padding: 0.3rem;
+    border-radius: 0.85rem;
+    background: #111a33;
+}
+
+.back-office-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0.65rem 1rem;
+    border-radius: 0.65rem;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    transition:
+        color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.back-office-tab:hover {
+    color: var(--color-text);
+    background: rgba(255, 255, 255, 0.035);
+}
+
+.back-office-tab.active {
+    color: var(--color-white);
+    background: var(--color-primary);
+    box-shadow: 0 0 22px rgba(139, 92, 246, 0.28);
+}
+
+.activity-log-card {
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    background: rgba(11, 18, 38, 0.78);
+}
+
+.activity-log-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.15rem 1.25rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.activity-log-card__title {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0;
+    color: var(--color-text);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.activity-log-card__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.75rem;
+    min-height: 1.45rem;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    background: var(--color-primary-soft);
+    color: #c4b5fd;
+    font-size: 0.72rem;
+}
+
+.activity-log-card__subtitle {
+    margin: 0.4rem 0 0;
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+}
+
+.activity-log-table-wrapper {
+    overflow-x: auto;
+}
+
+.activity-log-table {
+    width: 100%;
+    min-width: 980px;
+    border-collapse: collapse;
+}
+
+.activity-log-table th,
+.activity-log-table td {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.12);
+    text-align: left;
+    vertical-align: middle;
+}
+
+.activity-log-table th {
+    background: rgba(7, 13, 29, 0.32);
+    color: var(--color-text-muted);
+    font-family: monospace;
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.activity-log-table tbody tr {
+    transition: background 0.2s ease;
+}
+
+.activity-log-table tbody tr:hover {
+    background: rgba(139, 92, 246, 0.045);
+}
+
+.activity-log-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.activity-log-date {
+    width: 165px;
+    color: var(--color-text-muted);
+    font-family: monospace;
+    font-size: 0.78rem;
+    white-space: nowrap;
+}
+
+.activity-log-actor {
+    width: 180px;
+}
+
+.activity-log-target {
+    width: 210px;
+}
+
+.activity-log-actor strong,
+.activity-log-target strong {
+    display: block;
+    overflow: hidden;
+    color: var(--color-text);
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.activity-log-actor strong {
+    color: #a78bfa;
+}
+
+.activity-log-actor small,
+.activity-log-target small {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--color-text-soft);
+    font-size: 0.68rem;
+}
+
+.activity-log-action {
+    width: 145px;
+}
+
+.activity-log-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 1.65rem;
+    padding: 0.25rem 0.65rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-family: monospace;
+    font-size: 0.73rem;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.activity-log-badge--created {
+    border-color: rgba(34, 211, 238, 0.18);
+    background: rgba(34, 211, 238, 0.12);
+    color: #22d3ee;
+}
+
+.activity-log-badge--updated {
+    border-color: rgba(96, 165, 250, 0.18);
+    background: rgba(96, 165, 250, 0.12);
+    color: #60a5fa;
+}
+
+.activity-log-badge--positive {
+    border-color: rgba(52, 211, 153, 0.18);
+    background: rgba(52, 211, 153, 0.12);
+    color: #34d399;
+}
+
+.activity-log-badge--approved {
+    border-color: rgba(74, 222, 128, 0.18);
+    background: rgba(74, 222, 128, 0.12);
+    color: #4ade80;
+}
+
+.activity-log-badge--warning {
+    border-color: rgba(251, 191, 36, 0.18);
+    background: rgba(251, 191, 36, 0.12);
+    color: #fbbf24;
+}
+
+.activity-log-badge--deleted {
+    border-color: rgba(248, 113, 113, 0.18);
+    background: rgba(248, 113, 113, 0.12);
+    color: #f87171;
+}
+
+.activity-log-badge--default {
+    border-color: rgba(167, 139, 250, 0.18);
+    background: rgba(167, 139, 250, 0.12);
+    color: #a78bfa;
+}
+
+.activity-log-detail {
+    min-width: 320px;
+    color: var(--color-text-muted);
+    font-size: 0.76rem;
+    line-height: 1.55;
+}
+
+.activity-log-detail span {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+}
+
+.activity-log-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 260px;
+    padding: 3rem 1.5rem;
+    color: var(--color-text-muted);
+    text-align: center;
+}
+
+.activity-log-empty i {
+    margin-bottom: 1rem;
+    color: var(--color-primary);
+    font-size: 2.2rem;
+}
+
+.activity-log-empty p {
+    margin: 0;
+}
+
+.activity-log-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--color-border);
+}
+
+.activity-log-pagination__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.55rem 0.8rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.65rem;
+    background: rgba(7, 13, 29, 0.35);
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    text-decoration: none;
+    transition:
+        color 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.activity-log-pagination__link:hover {
+    border-color: var(--color-primary);
+    background: var(--color-primary-soft);
+    color: var(--color-text);
+}
+
+.activity-log-pagination__link.disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+
+.activity-log-pagination__status {
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+}
+
+@media (max-width: 900px) {
+    .back-office-tabs {
+        display: flex;
+        overflow-x: auto;
+    }
+
+    .back-office-tab {
+        min-width: 145px;
+        flex: 0 0 auto;
+    }
+}
+
+@media (max-width: 700px) {
+    .activity-log-card {
+        border: 0;
+        background: transparent;
+    }
+
+    .activity-log-card__header {
+        padding-inline: 0;
+    }
+
+    .activity-log-table-wrapper {
+        overflow: visible;
+    }
+
+    .activity-log-table {
+        min-width: 0;
+    }
+
+    .activity-log-table thead {
+        display: none;
+    }
+
+    .activity-log-table,
+    .activity-log-table tbody,
+    .activity-log-table tr,
+    .activity-log-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .activity-log-table tbody {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .activity-log-table tr {
+        overflow: hidden;
+        border: 1px solid var(--color-border);
+        border-radius: 0.9rem;
+        background: rgba(11, 18, 38, 0.78);
+    }
+
+    .activity-log-table td {
+        display: grid;
+        grid-template-columns: 100px minmax(0, 1fr);
+        gap: 1rem;
+        width: auto;
+        padding: 0.8rem 1rem;
+        border-bottom: 1px solid rgba(139, 92, 246, 0.12);
+    }
+
+    .activity-log-table td::before {
+        content: attr(data-label);
+        color: var(--color-text-soft);
+        font-family: monospace;
+        font-size: 0.72rem;
+        font-weight: 600;
+    }
+
+    .activity-log-table td:last-child {
+        border-bottom: 0;
+    }
+
+    .activity-log-date,
+    .activity-log-actor,
+    .activity-log-target,
+    .activity-log-action,
+    .activity-log-detail {
+        min-width: 0;
+    }
+
+    .activity-log-pagination {
+        padding-inline: 0;
+    }
+
+    .activity-log-pagination__status {
+        display: none;
+    }
+}

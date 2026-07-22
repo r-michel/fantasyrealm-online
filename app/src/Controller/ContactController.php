@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -53,10 +54,10 @@ class ContactController extends AbstractController
                 ));
             } else {
                 $email = (new Email())
-                    ->from(
+                    ->from(new Address(
                         $this->mailerFromEmail,
                         $this->mailerFromName
-                    )
+                    ))
                     ->to($contactEmail)
                     ->replyTo($contactRequest->email)
                     ->subject('[FantasyRealm] ' . $contactRequest->subject)

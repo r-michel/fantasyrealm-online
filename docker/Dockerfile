@@ -36,4 +36,10 @@ RUN groupmod --gid "${GID}" www-data \
 
 WORKDIR /var/www
 
+COPY docker/php-entrypoint.sh /usr/local/bin/php-entrypoint
+
+RUN chmod +x /usr/local/bin/php-entrypoint
+
+ENTRYPOINT ["php-entrypoint"]
+
 CMD ["php-fpm"]

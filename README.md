@@ -57,7 +57,7 @@ docker compose ps
 ## 3. Installer les dépendances
 
 ```bash
-docker compose exec php composer install
+docker compose exec --user www-data php composer install
 ```
 
 ---
@@ -65,7 +65,7 @@ docker compose exec php composer install
 ## 4. Créer la base de données
 
 ```bash
-docker compose exec php php bin/console doctrine:database:create --if-not-exists
+docker compose exec --user www-data php php bin/console doctrine:database:create --if-not-exists
 ```
 
 ---
@@ -73,7 +73,7 @@ docker compose exec php php bin/console doctrine:database:create --if-not-exists
 ## 5. Exécuter les migrations
 
 ```bash
-docker compose exec php php bin/console doctrine:migrations:migrate --no-interaction
+docker compose exec --user www-data php php bin/console doctrine:migrations:migrate --no-interaction
 ```
 
 MongoDB ne nécessite aucune migration. Les collections sont créées automatiquement lors du premier enregistrement.
@@ -83,7 +83,7 @@ MongoDB ne nécessite aucune migration. Les collections sont créées automatiqu
 ## 6. Charger le catalogue d'équipements
 
 ```bash
-docker compose exec php php bin/console doctrine:fixtures:load --group=equipment --append --no-interaction
+docker compose exec --user www-data php php bin/console doctrine:fixtures:load --group=equipment --append --no-interaction
 ```
 
 Cette commande importe les catégories ainsi que tous les équipements disponibles dans l'application.
@@ -103,7 +103,7 @@ ADMIN_PASSWORD=change-me
 Une fois ces informations configurées, exécuter :
 
 ```bash
-docker compose exec php php bin/console doctrine:fixtures:load --group=admin --append --no-interaction
+docker compose exec --user www-data php php bin/console doctrine:fixtures:load --group=admin --append --no-interaction
 ```
 
 ---
@@ -111,7 +111,7 @@ docker compose exec php php bin/console doctrine:fixtures:load --group=admin --a
 ## 8. Vider le cache Symfony
 
 ```bash
-docker compose exec php php bin/console cache:clear
+docker compose exec --user www-data php php bin/console cache:clear
 ```
 
 ---
@@ -217,31 +217,31 @@ docker compose logs -f
 ## Ouvrir un shell dans le conteneur PHP
 
 ```bash
-docker compose exec php bash
+docker compose exec --user www-data php bash
 ```
 
 ## Vider le cache
 
 ```bash
-docker compose exec php php bin/console cache:clear
+docker compose exec --user www-data php php bin/console cache:clear
 ```
 
 ## Rejouer les migrations
 
 ```bash
-docker compose exec php php bin/console doctrine:migrations:migrate
+docker compose exec --user www-data php php bin/console doctrine:migrations:migrate
 ```
 
 ## Recharger les équipements
 
 ```bash
-docker compose exec php php bin/console doctrine:fixtures:load --group=equipment --append --no-interaction
+docker compose exec --user www-data php php bin/console doctrine:fixtures:load --group=equipment --append --no-interaction
 ```
 
 ## Recréer le compte administrateur
 
 ```bash
-docker compose exec php php bin/console doctrine:fixtures:load --group=admin --append --no-interaction
+docker compose exec --user www-data php php bin/console doctrine:fixtures:load --group=admin --append --no-interaction
 ```
 
 ---
@@ -255,6 +255,36 @@ Le projet suit une architecture Symfony basée sur :
 - Twig pour le rendu serveur
 - Bootstrap 5 pour l'interface
 - Docker pour l'environnement de développement
+
+---
+
+## Résolution des problèmes de permissions
+
+Symfony doit pouvoir écrire dans le dossier `var/`, utilisé notamment pour le cache, les journaux, les proxies et les hydrateurs Doctrine MongoDB ODM.
+
+Les droits de ce dossier sont normalement configurés automatiquement au démarrage du conteneur PHP.
+
+Les commandes Composer et Symfony doivent être exécutées avec l'utilisateur `www-data` :
+
+```bash
+docker compose exec --user www-data php composer install
+docker compose exec --user www-data php php bin/console cache:clear
+```
+
+Si une erreur telle que la suivante apparaît :
+
+```text
+Your hydrator directory must be writable
+```
+
+il est possible de réinitialiser le propriétaire du dossier `var/` avec :
+
+```bash
+docker compose exec php chown -R www-data:www-data var
+docker compose exec --user www-data php php bin/console cache:clear
+```
+
+La commande `chmod -R 777 var` peut résoudre temporairement le problème, mais elle n'est pas recommandée en raison des permissions trop permissives qu'elle applique.
 
 ---
 

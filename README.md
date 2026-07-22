@@ -92,7 +92,7 @@ Cette commande importe les catégories ainsi que tous les équipements disponibl
 
 ## 7. Créer le compte administrateur
 
-Les informations du compte administrateur sont définies dans le fichier `.env.local` :
+Les informations du compte administrateur sont définies dans le fichier `.env.local` à créer dans `app/` :
 
 ```dotenv
 ADMIN_EMAIL=admin@example.com

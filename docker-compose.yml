@@ -46,6 +46,7 @@ services:
       - fantasyrealm
     
   phpmyadmin:
+    profiles: ["dev"]
     image: phpmyadmin/phpmyadmin
     container_name: fantasyrealm_phpmyadmin
     restart: always
@@ -92,6 +93,7 @@ services:
       - fantasyrealm
 
   mailpit:
+    profiles: ["dev"]
     image: axllent/mailpit:latest
     container_name: fantasyrealm_mailpit
     restart: unless-stopped

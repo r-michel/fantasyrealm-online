@@ -1,0 +1,42 @@
+services:
+  nginx:
+    ports: !override
+      - "80:80"
+    restart: unless-stopped
+
+  php:
+    restart: unless-stopped
+    environment:
+      APP_ENV: prod
+      APP_DEBUG: 0
+
+  db:
+    ports: !reset []
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+  mongodb:
+    ports: !reset []
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD}
+
+  mailpit:
+    ports: !override
+      - "127.0.0.1:8025:8025"
+    restart: unless-stopped
+
+  phpmyadmin:
+    ports: !override
+      - "127.0.0.1:8080:80"
+    restart: unless-stopped
+
+  mongoexpress:
+    ports: !override
+      - "127.0.0.1:8081:8081"
+    restart: unless-stopped

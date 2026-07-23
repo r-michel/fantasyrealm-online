@@ -42,6 +42,10 @@ cd fantasyrealm-online
 
 ## 2. Démarrer les conteneurs
 
+D'abord copier le `.env.example` à la racine et le renommer en `.env`, puis compléter les mots de passe MySQL et MongoDB (utiliser par exemple la commande `openssl rand -hex 16` pour générer les mots de passe).
+
+Puis lancer le build et les conteneurs :
+
 ```bash
 docker compose up -d --build
 ```
@@ -152,6 +156,8 @@ Tous les emails générés par l'application y sont consultables, notamment :
 
 Aucun email n'est envoyé à de véritables destinataires en environnement de développement.
 
+En production les emails sont envoyés par Brevo.
+
 ---
 
 # Base de données
@@ -178,18 +184,27 @@ Contient les données documentaires :
 
 ---
 
-# Variables d'environnement principales
+# Variables d'environnement
+
+Les principales variables d'environnement sont réparties entre :
+
+## Racine du projet (.env)
+- configuration Docker Compose
+- mots de passe des services
+- ports exposés
+
+## Application Symfony (app/.env.local ou .env.prod.local)
 
 ```
-APP_ENV=dev
-
-DATABASE_URL=mysql://fantasyrealm_user:fantasyrealm_pass@db:3306/fantasyrealm
-
-MONGODB_URI=mongodb://root:root@mongodb:27017/?authSource=admin
-
-MONGODB_DB=fantasyrealm_logs
-
-MAILER_DSN=smtp://mailpit:1025
+APP_ENV
+APP_SECRET
+DATABASE_URL
+MONGODB_URI
+MONGODB_DB
+MAILER_DSN
+ADMIN_EMAIL
+ADMIN_USERNAME
+ADMIN_PASSWORD
 ```
 
 ---

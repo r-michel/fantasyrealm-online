@@ -34,10 +34,10 @@ services:
     image: mysql:8.4
     restart: always
     environment:
-      MYSQL_DATABASE: fantasyrealm
-      MYSQL_USER: fantasyrealm_user
-      MYSQL_PASSWORD: fantasyrealm_pass
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
@@ -54,8 +54,8 @@ services:
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
-      PMA_USER: fantasyrealm_user
-      PMA_PASSWORD: fantasyrealm_pass
+      PMA_USER: ${MYSQL_USER}
+      PMA_PASSWORD: ${MYSQL_PASSWORD}
     depends_on:
       - db
     networks:
@@ -68,8 +68,8 @@ services:
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD}
       MONGO_INITDB_DATABASE: fantasyrealm_logs
     volumes:
       - mongo_data:/data/db
@@ -83,8 +83,8 @@ services:
     ports:
       - "8081:8081"
     environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: root
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGODB_ROOT_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGODB_ROOT_PASSWORD}
       ME_CONFIG_MONGODB_SERVER: mongodb
     depends_on:
       - mongodb
